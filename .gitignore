@@ -131,9 +131,9 @@ dmypy.json
 .DS_Store
 
 #Enviroment
-.grid-creation/geopandas
+/grid-creation/geopandas
 
 #Folder
-.grid-creation/geojson-italy/*
-.grid-creation/data/*
-.grid-creation/italy/*
+/grid-creation/geojson-italy/*
+/grid-creation/data/*
+/grid-creation/italy/*

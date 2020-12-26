@@ -136,4 +136,4 @@ dmypy.json
 #Folder
 .grid-creation/geojson-italy/*
 .grid-creation/data/*
-.grid-creation/italy
+.grid-creation/italy/*

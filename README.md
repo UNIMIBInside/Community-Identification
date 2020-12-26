@@ -12,4 +12,4 @@ This study is focus on understanding and divided the city base on three characte
 ***
 * [Geojson of world city](https://github.com/drei01/geojson-world-cities)
 * [Geojson of italian city](https://github.com/openpolis/geojson-italy)
-* [Json of the some cities in italy](https://simplemaps.com/data/it-cities)
+* [Name of some Italian cities](https://simplemaps.com/data/it-cities)

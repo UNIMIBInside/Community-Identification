@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.DS_Store
+
+#Enviroment
+.grid-creation/geopandas
+
+#Folder
+.grid-creation/geojson-italy/*
+.grid-creation/data/*

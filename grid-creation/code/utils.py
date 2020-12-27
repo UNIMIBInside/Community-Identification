@@ -88,17 +88,18 @@ def extract_map_tiles(folder_path, points_dataframe):
         pass
 
     for i in range(0, points_dataframe.shape[0]):
-        latitude_min = points_dataframe.iloc[i].lat_min
-        latitude_max = points_dataframe.iloc[i].lat_max
-        longitude_min = points_dataframe.iloc[i].lon_min
-        longitude_max = points_dataframe.iloc[i].lon_max
-
-        delta_lat_meter = geopy.distance.geodesic((latitude_min, longitude_min), \
-                                                    (latitude_max, longitude_min)).m
-        delta_lon_meter = geopy.distance.geodesic((latitude_min, longitude_min), \
-                                                    (latitude_min, longitude_max)).m
-        delta_lat_pixel = int(np.ceil(delta_lat_meter/1.6))
-        delta_lon_pixel = int(np.ceil(delta_lon_meter/1.6))
+        #latitude_min = points_dataframe.iloc[i].lat_min
+        #latitude_max = points_dataframe.iloc[i].lat_max
+        #longitude_min = points_dataframe.iloc[i].lon_min
+        #longitude_max = points_dataframe.iloc[i].lon_max
+        #delta_lat_meter = geopy.distance.geodesic((latitude_min, longitude_min), \
+        #                                            (latitude_max, longitude_min)).m
+        #delta_lon_meter = geopy.distance.geodesic((latitude_min, longitude_min), \
+        #                                            (latitude_min, longitude_max)).m
+        #delta_lat_pixel = int(np.ceil(delta_lat_meter/1.6))
+        #delta_lon_pixel = int(np.ceil(delta_lon_meter/1.6))
+        delta_lat_pixel = 325
+        delta_lon_pixel = 230
 
         map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
             url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')

@@ -23,7 +23,7 @@ city_italy_geojson = utils.load_geojson(f'{folder_path}/data/limits_IT_municipal
 city_italy_dataframe = city_italy_geojson.join(city_italy_selected, \
                                     on ='city', how='inner').reset_index()
 
-for i in range(1):
+for i in range(city_italy_dataframe.shape[0]):
     grid_dataframe = utils.get_city_grid(city_italy_dataframe.iloc[i], 400)
 
     start = time.time()

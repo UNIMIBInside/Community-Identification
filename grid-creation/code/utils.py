@@ -38,8 +38,10 @@ def get_city_grid(row, bin_side_length):
 
     city_label = row.city
     lon_min, lat_min, lon_max, lat_max = row.geometry.bounds
-    width = bin_side_length / 111320 * 1.2
-    height = bin_side_length  / 111320 * 1.2
+    #width = bin_side_length / 111320 * 1.2
+    #height = bin_side_length  / 111320 * 1.2
+    height = 0.00470
+    width = 0.00470
     grid_n_rows = int(np.ceil((lat_max-lat_min) / height))
     grid_n_cols = int(np.ceil((lon_max-lon_min) / width))
 

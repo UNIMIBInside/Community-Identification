@@ -103,6 +103,7 @@ def extract_map_tiles(folder_path, points_dataframe):
         delta_lat_pixel = 325
         delta_lon_pixel = 230
         map_tile = False
+        k = 0
         while not map_tile:
             if k > 3:
                 map_tile= True

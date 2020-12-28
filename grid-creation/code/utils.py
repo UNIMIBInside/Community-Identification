@@ -102,12 +102,12 @@ def extract_map_tiles(folder_path, points_dataframe):
         #delta_lon_pixel = int(np.ceil(delta_lon_meter/1.6))
         delta_lat_pixel = 325
         delta_lon_pixel = 230
-        map_tiles = False
-        while not map_tiles:
+        map_tile = False
+        while not map_tile:
             try:
                 map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
                                       url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
-                map_tiles = True
+                map_tile = True
             except Exception as e:
                 print('{} al numero {}'.format(city_label, i))
                 print(e)

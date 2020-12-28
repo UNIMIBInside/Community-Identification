@@ -104,22 +104,26 @@ def extract_map_tiles(folder_path, points_dataframe):
         delta_lon_pixel = 230
         map_tile = False
         while not map_tile:
-            try:
-                map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
+            if k > 3:
+                map_tile= True
+            else:
+                try:
+                    map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
                                       url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
-                map_tile = True
-            except Exception as e:
-                print('{} al numero {}'.format(city_label, i))
-                print(e)
-                time.sleep(10)
-
-        coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)
-        marker_outline = CircleMarker(coords, 'white', 0.1)
-        map_tiles.add_marker(marker_outline)
-        image = map_tiles.render(zoom=16)
-        image_path = folder_path + '/data/' + city_label + '/map_tiles/' + \
-                        str(int(points_dataframe.iloc[i].marker_label)) + '.png'
-        image.save(image_path)
+                    coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)
+                    marker_outline = CircleMarker(coords, 'white', 0.1)
+                    map_tiles.add_marker(marker_outline)
+                    image = map_tiles.render(zoom=16)
+                    image_path = folder_path + '/data/' + city_label + '/map_tiles/' + \
+                                    str(int(points_dataframe.iloc[i].marker_label)) + '.png'
+                    image.save(image_path)
+                    map_tile = True
+                except Exception as e:
+                    k += 1
+                    print('{} al numero {}'.format(city_label, i))
+                    print(e)
+                    time.sleep(60)
+                    pass
 
 
 def compute_node_count(points_dataframe, marker_label, nodes):

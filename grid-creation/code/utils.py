@@ -40,6 +40,8 @@ def get_city_grid(row, bin_side_length):
     lon_min, lat_min, lon_max, lat_max = row.geometry.bounds
     #width = bin_side_length / 111320 * 1.2
     #height = bin_side_length  / 111320 * 1.2
+    #Length in meters of 1° of latitude = always 111.32 km
+    #Length in meters of 1° of longitude = 40075 km * cos( latitude ) / 360
     height = 0.00470
     width = 0.00470
     grid_n_rows = int(np.ceil((lat_max-lat_min) / height))
@@ -100,9 +102,15 @@ def extract_map_tiles(folder_path, points_dataframe):
         #delta_lon_pixel = int(np.ceil(delta_lon_meter/1.6))
         delta_lat_pixel = 325
         delta_lon_pixel = 230
+        map_tiles = False
+        while not map_tiles:
+            try:
+                map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
+                                      url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+                map_tiles = True
+            except:
+                time.sleep(10)
 
-        map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
-            url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
         coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)
         marker_outline = CircleMarker(coords, 'white', 0.1)
         map_tiles.add_marker(marker_outline)

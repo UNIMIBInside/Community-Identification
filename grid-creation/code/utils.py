@@ -108,7 +108,8 @@ def extract_map_tiles(folder_path, points_dataframe):
                 map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
                                       url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
                 map_tiles = True
-            except:
+            except Exception as e:
+                print(e)
                 time.sleep(10)
 
         coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)

@@ -109,6 +109,7 @@ def extract_map_tiles(folder_path, points_dataframe):
                                       url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
                 map_tiles = True
             except Exception as e:
+                print('{} al numero {}'.format(city_label, i))
                 print(e)
                 time.sleep(10)
 

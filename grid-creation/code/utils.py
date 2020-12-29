@@ -275,7 +275,7 @@ def compute_nodes_and_ways(folder_path, points_dataframe):
                 points_dataframe = compute_way_count(points_dataframe, \
                                     points_dataframe.iloc[i].marker_label, result.ways)
                 query_executed = True
-            except (overpy.exception.OverpassTooManyRequests, \
+            except (Exception,overpy.exception.OverpassTooManyRequests, \
                         overpy.exception.OverpassGatewayTimeout):
                 print(i)
                 print('Start sleep')

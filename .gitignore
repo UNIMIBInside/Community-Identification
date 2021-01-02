@@ -136,6 +136,7 @@ dmypy.json
 #Folder
 /grid-creation/geojson-italy/*
 /grid-creation/italy/*
+/grid-creation/data/*
 
 #include folder
 !/grid-creation/italy/.gitkeep

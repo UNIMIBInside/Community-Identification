@@ -5,6 +5,7 @@ import time
 import os
 from keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 import tensorflow as tf
+from keras.optimizers import Adam
 
 if __name__ == '__main__':
     # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6144)])
@@ -40,8 +41,16 @@ if __name__ == '__main__':
     if os.path.isdir(path_weight) is False:
         os.mkdir(path_weight)
 
+    # Image Creation
+
+
+
     # Model creation
-    build = Map_Embedding(weights= None, include_top=False, input_shape= (32,32,3))
+
+    build = Map_Embedding(weights= None, include_top=False, input_shape= (X_train.shape[1], X_train.shape[2], X_train.shape[3]))
+
+    # compile model
+    build.compile(optimizer=Adam(lr=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Model training
 

@@ -1,5 +1,5 @@
 """
-File per lo scaricamento delle rilevazioni di bici, moto ed automobili dallle API Fluctuo.
+File per il download delle rilevazioni di bici, monopattini, moto ed automobili dallle API Fluctuo.
 
 N_MARKER: numero di marker su cui fare le per ogni esecuzione della funzione (max 10/min).
 N_ITERATION: numero di iterazioni su cui lavora ciascun token.
@@ -14,8 +14,13 @@ PATH_DATAFRAME_N: nome dei file incrementali dei dati ottenuti.
 
 from imports import *
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--file", help="Insert dataset path", type=str)
+args = parser.parse_args()
 
 FOLDER_PATH = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+points_dataframe = pd.read_csv(FOLDER_PATH + '/' + args.file)
+
 N_MARKER = 10
 N_ITERATION = 2
 
@@ -43,8 +48,6 @@ try:
     os.mkdir(FOLDER_PATH+'/data/'+FOLDER_2)
 except FileExistsError:
     pass
-
-points_dataframe = pd.read_csv(FOLDER_PATH+'/data/points.csv')
 
 
 def get_fluctuo_data_token_1():
@@ -155,6 +158,7 @@ def get_fluctuo_data_token_2():
     new_movement_dataframe.to_csv(FOLDER_2+'/iteration_'+PATH_DATAFRAME_2+'.csv', index=False)
     return True
 
+print('Scheduling started')
 
 schedule.every().hours.at(':00').do(get_fluctuo_data_token_1)
 schedule.every().hours.at(':00').do(get_fluctuo_data_token_2)

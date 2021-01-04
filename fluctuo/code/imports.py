@@ -5,3 +5,4 @@ import time
 import requests
 import pandas as pd
 import schedule
+import geopy.distance

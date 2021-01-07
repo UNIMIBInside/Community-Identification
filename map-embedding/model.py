@@ -552,13 +552,14 @@ def Map_Embedding(include_top=True,
              input_tensor=None,
              input_shape=None,
              pooling='avg',
-             classes=18, #inserire il numero di classi per creare
+             vector_space=128,
+             classes=25, #inserire il numero di classi per creare
              **kwargs):
     name = 'map_embedding'
-    resnet = ResNet50(include_top,weights,input_tensor, input_shape,pooling,classes)
+    resnet = ResNet50(include_top, weights, input_tensor, input_shape,pooling,classes)
     #flat1 = layers.Flatten()(resnet.layers.output) # un flatten aggount
-    class1 = layers.Dense(1024, activation='relu', name=name + '_relu')(resnet.layers[-1].output)#(flat1)
-    output = layers.Dense(10, activation='softmax', name=name + '_output')(class1)
+    class1 = layers.Dense(vector_space, activation='relu', name=name + '_relu')(resnet.layers[-1].output)#(flat1)
+    output = layers.Dense(classes, activation='softmax', name=name + '_output')(class1)
     model = training.Model(inputs=resnet.input, outputs=output)
 
     return model

@@ -26,9 +26,9 @@ random.shuffle(city_list)
 
 i = 0
 for city in city_list:
-    i += 1
-    if i > 1:
-        break
+    #i += 1
+    #if i > 1:
+    #    break
 
     map_tiles_files = os.listdir(f'{folder_path}/{file_path}/{city}/map_tiles')
     new_map_tiles_files = [f'{city}_{map_tiles}' for map_tiles in map_tiles_files]

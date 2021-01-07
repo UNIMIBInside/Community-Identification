@@ -27,9 +27,10 @@ if __name__ == '__main__':
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     nb_epoch = 150  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
-    vector_shape = 1024 # dimension of the embedding vector
+    vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 32
     target_size_2 = 32
+    learning_rate = 0.001
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation
@@ -77,7 +78,7 @@ if __name__ == '__main__':
         directory=validation_image_path,
         x_col="map_tiles",
         y_col=columns,
-        subset="validation",
+        subset="training",
         batch_size=batch_size,
         seed=42,
         shuffle=True,
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     build = Map_Embedding(weights=None, include_top=False, input_shape= (target_size_1, target_size_2, 3))
 
     # compile model
-    build.compile(optimizer=Adam(lr=1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
+    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Model training
 
@@ -98,7 +99,7 @@ if __name__ == '__main__':
     fname_param = os.path.join('MODEL', '{}.best.h5'.format(hyperparams_name))
 
     model_checkpoint = ModelCheckpoint(
-        fname_param, monitor='val_rmse', verbose=0, save_best_only=True, mode='min')
+        fname_param, monitor='val_accuracy', verbose=0, save_best_only=True, mode='min')
 
     print("training model...")
     ts = time.time()

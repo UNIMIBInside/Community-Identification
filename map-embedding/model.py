@@ -548,7 +548,7 @@ DOC = """
 
 
 def Map_Embedding(include_top=True,
-             weights='imagenet',
+             weights=True,
              input_tensor=None,
              input_shape=None,
              pooling='avg',
@@ -557,6 +557,8 @@ def Map_Embedding(include_top=True,
              freeze=True,
              **kwargs):
     name = 'map_embedding'
+    if weights:
+      weights = 'imagenet'
     resnet = ResNet50(include_top, weights, input_tensor, input_shape,pooling,classes)
     if freeze:
       resnet.trainable=False

@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     # Model creation
 
-    build = Map_Embedding(weights=None, include_top=False, input_shape= (target_size_1, target_size_2, 3))
+    build = Map_Embedding(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
 
     # compile model
     build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])

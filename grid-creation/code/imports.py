@@ -1,5 +1,9 @@
 import os
+import shutil
 import time
+import random
+import argparse
+from math import radians, cos, sin, asin, sqrt
 
 from collections import Counter
 import pandas as pd
@@ -9,5 +13,3 @@ from staticmap import StaticMap, CircleMarker
 import geopandas as gpd
 from shapely.geometry import Point, LineString, Polygon
 import overpy
-from math import radians, cos, sin, asin, sqrt
-import shutilimport 

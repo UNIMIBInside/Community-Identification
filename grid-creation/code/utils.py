@@ -40,8 +40,6 @@ def get_city_grid(row, bin_side_length):
     lon_min, lat_min, lon_max, lat_max = row.geometry.bounds
     #width = bin_side_length / 111320 * 1.2
     #height = bin_side_length  / 111320 * 1.2
-    #Length in meters of 1° of latitude = always 111.32 km
-    #Length in meters of 1° of longitude = 40075 km * cos( latitude ) / 360
     height = 0.00470
     width = 0.00470
     grid_n_rows = int(np.ceil((lat_max-lat_min) / height))
@@ -105,26 +103,23 @@ def extract_map_tiles(folder_path, points_dataframe):
         map_tile = False
         k = 0
         while not map_tile:
+            k += 1
             if k > 3:
-                map_tile= True
-            else:
-                try:
-                    map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
-                                      url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
-                    coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)
-                    marker_outline = CircleMarker(coords, 'white', 0.1)
-                    map_tiles.add_marker(marker_outline)
-                    image = map_tiles.render(zoom=16)
-                    image_path = folder_path + '/data/' + city_label + '/map_tiles/' + \
-                                    str(int(points_dataframe.iloc[i].marker_label)) + '.png'
-                    image.save(image_path)
-                    map_tile = True
-                except Exception as e:
-                    k += 1
-                    print('{} al numero {}'.format(city_label, i))
-                    print(e)
-                    time.sleep(60)
-                    pass
+                map_tile = True
+            try:
+                map_tiles = StaticMap(delta_lon_pixel, delta_lat_pixel, \
+                    url_template='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png')
+                coords = (points_dataframe.iloc[i].longitude, points_dataframe.iloc[i].latitude)
+                marker_outline = CircleMarker(coords, 'white', 0.1)
+                map_tiles.add_marker(marker_outline)
+                image = map_tiles.render(zoom=16)
+                image_path = folder_path + '/data/' + city_label + '/map_tiles/' + \
+                                str(int(points_dataframe.iloc[i].marker_label)) + '.png'
+                image.save(image_path)
+                map_tile = True
+            except Exception as error:
+                print(error, f'{city_label} skipped {i}')
+                time.sleep(60)
 
 
 def compute_node_count(points_dataframe, marker_label, nodes):
@@ -275,11 +270,24 @@ def compute_nodes_and_ways(folder_path, points_dataframe):
                 points_dataframe = compute_way_count(points_dataframe, \
                                     points_dataframe.iloc[i].marker_label, result.ways)
                 query_executed = True
-            except (Exception,overpy.exception.OverpassTooManyRequests, \
-                        overpy.exception.OverpassGatewayTimeout):
-                print(i)
+            except (Exception, overpy.exception.OverpassTooManyRequests, \
+                        overpy.exception.OverpassGatewayTimeout) as error:
+                print(i, error)
                 print('Start sleep')
                 time.sleep(60)
                 print('End sleep')
 
     points_dataframe.to_csv(f'{folder_path}/data/{city_label}/marker_metadata.csv', index=False)
+
+
+def binarization_quantile(field_count, threshold_down, threshold_up):
+    if field_count > threshold_down and field_count <= threshold_up:
+        return 1
+    else:
+        return 0
+
+def binarization(field_count):
+    if field_count >= 1:
+        return 1
+    else:
+        return 0

@@ -1,14 +1,18 @@
 from imports import *
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--file", help="Insert dataset path", type=str)
+args = parser.parse_args()
+file_path = args.file
 
 folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 
 try:
-    os.mkdir(f'{folder_path}/data/city_merged')
+    os.mkdir(f'{folder_path}/{file_path}_merged')
 except FileExistsError:
     pass
 try:
-    os.mkdir(f'{folder_path}/data/city_merged/map_tiles')
+    os.mkdir(f'{folder_path}/{file_path}_merged/map_tiles')
 except FileExistsError:
     pass
 columns = ['map_tiles', 'peak', 'playground', 'train_station', 'metro_station', 'tram_stop', \
@@ -17,21 +21,26 @@ columns = ['map_tiles', 'peak', 'playground', 'train_station', 'metro_station', 
             'highway', 'highway_residential', 'highway_cycleway', 'highway_pedestrian', 'building']
 metadata_dataframe = pd.DataFrame(columns=columns)
 
-city_list = os.listdir(f'{folder_path}/data/City')
+city_list = os.listdir(f'{folder_path}/{file_path}')
+random.shuffle(city_list)
 
+i = 0
 for city in city_list:
+    i += 1
+    if i > 1:
+        break
 
-    map_tiles_files = os.listdir(f'{folder_path}/data/City/{city}/map_tiles')
+    map_tiles_files = os.listdir(f'{folder_path}/{file_path}/{city}/map_tiles')
     new_map_tiles_files = [f'{city}_{map_tiles}' for map_tiles in map_tiles_files]
-    city_metadata_dataframe = pd.read_csv(f'{folder_path}/data/City/{city}/marker_metadata.csv')
+    city_metadata_dataframe = pd.read_csv(f'{folder_path}/{file_path}/{city}/marker_metadata.csv')
     city_metadata_dataframe['map_tiles'] = city_metadata_dataframe.apply(lambda x: \
-                                            f'{x["city"]}_{x["marker_label"]}.png', axis=1)
+                                            f'{x["city"]}_{int(x["marker_label"])}.png', axis=1)
     city_metadata_dataframe = city_metadata_dataframe.drop(columns=['longitude', 'latitude', \
                             'lon_min', 'lat_min', 'lon_max', 'lat_max', 'marker_label', 'city'])
 
     for old_map_tiles_name, new_map_tiles_name in zip(map_tiles_files, new_map_tiles_files):
-        old_path = f'{folder_path}/data/City/{city}/map_tiles/{old_map_tiles_name}'
-        new_path = f'{folder_path}/data/city_merged/map_tiles/{new_map_tiles_name}'
+        old_path = f'{folder_path}/{file_path}/{city}/map_tiles/{old_map_tiles_name}'
+        new_path = f'{folder_path}/{file_path}_merged/map_tiles/{new_map_tiles_name}'
         shutil.copyfile(old_path, new_path)
 
     if len(map_tiles_files) == city_metadata_dataframe.shape[0]:
@@ -54,4 +63,4 @@ for city in city_list:
     metadata_dataframe = metadata_dataframe.append(city_metadata_dataframe)
 
 
-metadata_dataframe.to_csv(f'{folder_path}/data/city_merged/marker_metadata.csv', index=False)
+metadata_dataframe.to_csv(f'{folder_path}/{file_path}_merged/marker_metadata.csv', index=False)

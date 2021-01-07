@@ -28,9 +28,9 @@ if __name__ == '__main__':
     nb_epoch = 150  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
-    target_size_1 = 32
-    target_size_2 = 32
-    learning_rate = 0.001
+    target_size_1 = 224
+    target_size_2 = 224
+    learning_rate = 0.0001
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation

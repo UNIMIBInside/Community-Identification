@@ -15,11 +15,13 @@ try:
     os.mkdir(f'{folder_path}/{file_path}_merged/map_tiles')
 except FileExistsError:
     pass
+
 columns = ['map_tiles', 'peak', 'playground', 'train_station', 'metro_station', 'tram_stop', \
             'bus_stop', 'university', 'parking_car', 'parking_bicycle', 'parking_motorcycle', \
             'water_natural', 'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', \
             'highway', 'highway_residential', 'highway_cycleway', 'highway_pedestrian', 'building']
 metadata_dataframe = pd.DataFrame(columns=columns)
+columns.pop(0)
 
 city_list = os.listdir(f'{folder_path}/{file_path}')
 random.shuffle(city_list)
@@ -38,11 +40,6 @@ for city in city_list:
     city_metadata_dataframe = city_metadata_dataframe.drop(columns=['longitude', 'latitude', \
                             'lon_min', 'lat_min', 'lon_max', 'lat_max', 'marker_label', 'city'])
 
-    for old_map_tiles_name, new_map_tiles_name in zip(map_tiles_files, new_map_tiles_files):
-        old_path = f'{folder_path}/{file_path}/{city}/map_tiles/{old_map_tiles_name}'
-        new_path = f'{folder_path}/{file_path}_merged/map_tiles/{new_map_tiles_name}'
-        shutil.copyfile(old_path, new_path)
-
     if len(map_tiles_files) == city_metadata_dataframe.shape[0]:
         print(city)
     else:
@@ -58,9 +55,19 @@ for city in city_list:
             except ValueError:
                 i = city_metadata_dataframe.shape[0]
         city_metadata_dataframe = city_metadata_dataframe.drop(missing_map_tiles)
-
-
+    
+    city_metadata_dataframe['metadata_sum'] = city_metadata_dataframe.apply(lambda x: \
+                                                            int(x[columns].sum()), axis=1)
+    empty_map_tiles = list(city_metadata_dataframe.loc[city_metadata_dataframe.metadata_sum == 0].map_tiles)
+    city_metadata_dataframe = city_metadata_dataframe.loc[city_metadata_dataframe.metadata_sum != 0]
+    city_metadata_dataframe = city_metadata_dataframe.drop(columns=['metadata_sum'])
     metadata_dataframe = metadata_dataframe.append(city_metadata_dataframe)
+
+    for old_map_tiles_name, new_map_tiles_name in zip(map_tiles_files, new_map_tiles_files):
+        if not new_map_tiles_name in empty_map_tiles:
+            old_path = f'{folder_path}/{file_path}/{city}/map_tiles/{old_map_tiles_name}'
+            new_path = f'{folder_path}/{file_path}_merged/map_tiles/{new_map_tiles_name}'
+            shutil.copyfile(old_path, new_path)
 
 
 metadata_dataframe.to_csv(f'{folder_path}/{file_path}_merged/marker_metadata.csv', index=False)

@@ -91,7 +91,7 @@ if __name__ == '__main__':
     build = Map_Embedding(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
 
     # compile model
-    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
+    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
     # Model training
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     # Prediction
     test_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-    test_generator = train_datagen.flow_from_dataframe(
+    test_generator = train_datagen.flow_from_directory(
         directory=test_image_path,
         batch_size=1,
         shuffle=False,

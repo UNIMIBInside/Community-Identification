@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import tensorflow as tf
 from tensorflow.python.keras import backend
 from tensorflow.python.keras.applications import imagenet_utils
 from tensorflow.python.keras.engine import training
@@ -564,14 +565,14 @@ def Map_Embedding(include_top=True,
       resnet.trainable=False
     #flat1 = layers.Flatten()(resnet.layers.output) # un flatten aggount
     class1 = layers.Dense(vector_space, activation='selu', name=name + '_selu')(resnet.layers[-1].output)#(flat1)
-    output = layers.Dense(classes, activation='softmax', name=name + '_output')(class1)
+    output = layers.Dense(classes, activation='sigmoid', name=name + '_output')(class1)
     model = training.Model(inputs=resnet.input, outputs=output)
 
     return model
 
 def prediction(model, input, path, load = False):
     if load:
-        model.load_weight(path)
+        model.load_weights(path)
     embedding = model.layers[:-1]
-    embedding_model = tensorflow.keras.Model(inputs=embedding[0].input, outputs=embedding[-1].output)
+    embedding_model = tf.keras.Model(inputs=embedding[0].input, outputs=embedding[-1].output)
     return embedding_model.predict(input)

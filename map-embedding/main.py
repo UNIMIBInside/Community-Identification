@@ -25,7 +25,7 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch = 150  # number of epoch at training stage
+    nb_epoch = 1  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
@@ -120,18 +120,27 @@ if __name__ == '__main__':
     build.save_weights(os.path.join('weight', '{}.h5'.format(hyperparams_name)), overwrite=True)
 
     # Prediction
+    test_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     test_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-    test_generator = train_datagen.flow_from_directory(
+    """test_generator = train_datagen.flow_from_dataframe(
         directory=test_image_path,
         batch_size=1,
         shuffle=False,
+        target_size=(target_size_1, target_size_2))"""
+
+    test_generator = train_datagen.flow_from_dataframe(
+        dataframe=test_metadata_dataframe,
+        directory=test_image_path,
+        x_col="map_tiles",
+        y_col=None,
+        batch_size=1,
+        seed=42,
+        shuffle=True,
+        class_mode=None,
         target_size=(target_size_1, target_size_2))
+
 
     embedding = prediction(build, test_generator, path= 'weight/Map_Embedding.h5', load = True)
 
     # Save results in pickle format
-    embedding.to_pickle(
-        os.path.join(
-            'results', hyperparams_name + ".pickle"
-        )
-    )
+    with open(os.path.join('results', hyperparams_name + ".pickle"),'wb') as f: pickle.dump(embedding, f)

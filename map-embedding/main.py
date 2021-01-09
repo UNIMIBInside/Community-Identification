@@ -25,12 +25,12 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch = 1  # number of epoch at training stage
+    nb_epoch = 20  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
     target_size_2 = 224
-    learning_rate = 0.0001
+    learning_rate = 0.001
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         shuffle=True,
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
-    
+
 
     # Model creation
 

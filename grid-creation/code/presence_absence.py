@@ -17,6 +17,12 @@ columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 
             'water_natural', 'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', \
             'highway_residential', 'highway_cycleway', 'highway_pedestrian']
 
+for field in columns:
+    metadata_dataframe[field] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
+    #metadata_dataframe[f'{field}_yes'] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
+    #metadata_dataframe[f'{field}_no'] = (~metadata_dataframe[f'{field}_yes'].astype(bool)).astype(int)
+    #metadata_dataframe = metadata_dataframe.drop(columns=[field])
+
 for field in not_binary_columns:
     first_third_quantile = metadata_dataframe[field].quantile(1/3)
     second_third_quantile = metadata_dataframe[field].quantile(2/3)
@@ -29,9 +35,6 @@ for field in not_binary_columns:
     metadata_dataframe[f'{field}_more'] = metadata_dataframe.apply(lambda x: \
         utils.binarization_quantile(x[field], second_third_quantile, third_third_quantile), axis=1)
     metadata_dataframe = metadata_dataframe.drop(columns=[field])
-
-for field in columns:
-    metadata_dataframe[field] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
 
 file_path = file_path.replace('marker_metadata', 'marker_metadata_binarized')
 metadata_dataframe.to_csv(f'{folder_path}/{file_path}', index=False)

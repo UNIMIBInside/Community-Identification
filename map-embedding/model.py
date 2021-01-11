@@ -570,6 +570,40 @@ def Map_Embedding(include_top=True,
 
     return model
 
+
+def Map_Embedding2(include_top=True,
+             weights=True,
+             input_tensor=None,
+             input_shape=None,
+             pooling='avg',
+             vector_space=128,
+             classes=21, #inserire il numero di classi per creare
+             freeze=True,
+             **kwargs):
+    name = 'map_embedding'
+    if weights:
+      weights = 'imagenet'
+    resnet = ResNet50(include_top, weights, input_tensor, input_shape,pooling,classes)
+    if freeze:
+      resnet.trainable=False
+    #flat1 = layers.Flatten()(resnet.layers.output) # un flatten aggount
+
+    task_layers = [layers.Dense(4, activation='selu', name=name + f'_class{i}')(resnet.layers[-1].output) \
+                                                                          for i in range(classes)]
+
+    output_layers = [layers.Dense(2, activation='sigmoid', name=name + f'_output{i}')(task_layers[i]) \
+                                                                          for i in range(classes-2)]
+    output_layers.append(layers.Dense(3, activation='sigmoid', name=name + '_output19')(task_layers[19]))
+    #output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output19')(task_layers[19]))
+    output_layers.append(layers.Dense(3, activation='sigmoid', name=name + '_output20')(task_layers[20]))
+    #output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output20')(task_layers[20]))
+
+    model = training.Model(inputs=resnet.input, outputs=output_layers)
+
+    return model
+
+
+
 def prediction(model, input, path, load = False):
     if load:
         model.load_weights(path)

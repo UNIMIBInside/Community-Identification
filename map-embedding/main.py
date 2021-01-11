@@ -8,6 +8,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateSchedule
 import tensorflow as tf
 from keras.optimizers import Adam
 from keras.applications.resnet50 import preprocess_input
+from keras.utils.vis_utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 if __name__ == '__main__':
@@ -56,6 +57,19 @@ if __name__ == '__main__':
             'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', 'highway_residential', \
             'highway_cycleway', 'highway_pedestrian', 'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
+    """
+    columns = ['peak_yes', 'peak_no', 'playground_yes', 'playground_no', 'train_station_yes', \
+            'train_station_no', 'metro_station_yes', 'metro_station_no', 'tram_stop_yes', \
+            'tram_stop_no', 'bus_stop_yes', 'bus_stop_no', 'university_yes', 'university_no', \
+            'parking_car_yes', 'parking_car_no', 'parking_bicycle_yes', 'parking_bicycle_no', \
+            'parking_motorcycle_yes', 'parking_motorcycle_no', 'water_natural_yes', 'water_natural_no', \
+            'water_artificial_yes', 'water_artificial_no', 'park_yes', 'park_no', 'grassland_yes', \
+            'grassland_no', 'farmland_yes', 'farmland_no', 'aerodrome_yes', 'aerodrome_no', \
+            'highway_residential_yes', 'highway_residential_no', 'highway_cycleway_yes', \
+            'highway_cycleway_no', 'highway_pedestrian_yes', 'highway_pedestrian_no', \
+            'highway_less', 'highway_some', 'highway_more', \
+            'building_less', 'building_some', 'building_more']
+    """
 
     train_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/city_merged/marker_metadata_binarized.csv')
     train_image_path = folder_path + '/grid-creation/data/city_merged/map_tiles/'
@@ -70,6 +84,21 @@ if __name__ == '__main__':
         shuffle=True,
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
+    """train_generator = []
+    for class_name in ['peak', 'playground', 'train_station']:
+        train_generator_class = train_datagen.flow_from_dataframe(
+            dataframe=train_metadata_dataframe,
+            directory=train_image_path,
+            x_col="map_tiles",
+            y_col=class_name,
+            subset="training",
+            batch_size=batch_size,
+            seed=42,
+            shuffle=True,
+            class_mode="raw",
+            target_size=(target_size_1, target_size_2))
+        train_generator.append(train_generator_class)"""
+    
 
     validation_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     validation_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
@@ -84,14 +113,41 @@ if __name__ == '__main__':
         shuffle=True,
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
-    
+    """validation_generator = []
+    for class_name in ['peak', 'playground', 'train_station']:
+        validation_generator_class = train_datagen.flow_from_dataframe(
+            dataframe=validation_metadata_dataframe,
+            directory=validation_image_path,
+            x_col="map_tiles",
+            y_col=class_name,
+            subset="training",
+            batch_size=batch_size,
+            seed=42,
+            shuffle=True,
+            class_mode="raw",
+            target_size=(target_size_1, target_size_2))
+        validation_generator.append(validation_generator_class)"""
+
 
     # Model creation
-
     build = Map_Embedding(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
+    #build = Map_Embedding2(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
+
+    #build.summary()
+    #plot_model(build, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     # compile model
-    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
+    metrics = ['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
+    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
+
+    """
+    loss_dict = {}
+    for i in range(19):
+        loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
+    for i in range(19,21):
+        loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
+    build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)
+    """
 
     # Model training
 
@@ -122,11 +178,6 @@ if __name__ == '__main__':
     # Prediction
     test_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     test_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-    """test_generator = train_datagen.flow_from_dataframe(
-        directory=test_image_path,
-        batch_size=1,
-        shuffle=False,
-        target_size=(target_size_1, target_size_2))"""
 
     test_generator = train_datagen.flow_from_dataframe(
         dataframe=test_metadata_dataframe,

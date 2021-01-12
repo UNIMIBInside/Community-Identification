@@ -4,12 +4,53 @@ import numpy as np
 import pandas as pd
 import time
 import os
+import json
+import argparse
 from keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 import tensorflow as tf
 from keras.optimizers import Adam
 from keras.applications.resnet50 import preprocess_input
 from keras.utils.vis_utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+def generate_data_from_directory(datagenerator, metadata_dataframe, image_path, columns, \
+                                                    batch_size, target_size_1, target_size_2):
+    data_generator = datagenerator.flow_from_dataframe(
+        dataframe=metadata_dataframe,
+        directory=image_path,
+        x_col="map_tiles",
+        y_col=columns,
+        subset="training",
+        batch_size=batch_size,
+        seed=42,
+        shuffle=True,
+        class_mode="raw",
+        target_size=(target_size_1, target_size_2))
+    total_images = data_generator.n
+    steps = (total_images//batch_size) + 1
+    x , y = [], []
+    for i in range(steps):
+        a , b = data_generator.next()
+        x.extend(a)
+        y.extend(b)
+    return np.array(x), np.array(y)
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--multitasking', help="Use multitask neural network", \
+                                                dest='multitasking', action='store_true')
+parser.set_defaults(multitasking=False)
+parser.add_argument('--binarization', help="Use dataframe column with binarization", \
+                                                dest='binarization', action='store_true')
+parser.set_defaults(binarization=False)
+args = parser.parse_args()
+
+if args.binarization and not args.multitasking:
+    print('Error on use --binarization without --multitasking')
+    exit(1)
+multitask = args.multitasking
+binarization = args.binarization
+
 
 if __name__ == '__main__':
     # tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=6144)])
@@ -50,15 +91,19 @@ if __name__ == '__main__':
         os.mkdir(folder_path + '/map-embedding/' + path_weight)
 
     # Image Creation
-    train_datagen=ImageDataGenerator(preprocessing_function=preprocess_input)
 
-    columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 'bus_stop', \
+    datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)
+
+    if not binarization:
+        columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 'bus_stop', \
             'university', 'parking_car', 'parking_bicycle', 'parking_motorcycle', 'water_natural', \
             'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', 'highway_residential', \
             'highway_cycleway', 'highway_pedestrian', 'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
-    """
-    columns = ['peak_yes', 'peak_no', 'playground_yes', 'playground_no', 'train_station_yes', \
+        n_col = 1
+        offset = 19
+    else:
+        columns = ['peak_yes', 'peak_no', 'playground_yes', 'playground_no', 'train_station_yes', \
             'train_station_no', 'metro_station_yes', 'metro_station_no', 'tram_stop_yes', \
             'tram_stop_no', 'bus_stop_yes', 'bus_stop_no', 'university_yes', 'university_no', \
             'parking_car_yes', 'parking_car_no', 'parking_bicycle_yes', 'parking_bicycle_no', \
@@ -69,85 +114,86 @@ if __name__ == '__main__':
             'highway_cycleway_no', 'highway_pedestrian_yes', 'highway_pedestrian_no', \
             'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
-    """
+        n_col = 2
+        offset = 38
 
     train_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/city_merged/marker_metadata_binarized.csv')
     train_image_path = folder_path + '/grid-creation/data/city_merged/map_tiles/'
-    train_generator = train_datagen.flow_from_dataframe(
-        dataframe=train_metadata_dataframe,
-        directory=train_image_path,
-        x_col="map_tiles",
-        y_col=columns,
-        subset="training",
-        batch_size=batch_size,
-        seed=42,
-        shuffle=True,
-        class_mode="raw",
-        target_size=(target_size_1, target_size_2))
-    """train_generator = []
-    for class_name in ['peak', 'playground', 'train_station']:
-        train_generator_class = train_datagen.flow_from_dataframe(
-            dataframe=train_metadata_dataframe,
-            directory=train_image_path,
-            x_col="map_tiles",
-            y_col=class_name,
-            subset="training",
-            batch_size=batch_size,
-            seed=42,
-            shuffle=True,
-            class_mode="raw",
-            target_size=(target_size_1, target_size_2))
-        train_generator.append(train_generator_class)"""
     
+    train_x, train_y = generate_data_from_directory(datagenerator, \
+                                                    train_metadata_dataframe, train_image_path, \
+                                                    columns, batch_size, target_size_1, target_size_2)
+    if not multitask:
+        train_targets = train_y
+    else:
+        print(train_x.shape)
+        print(train_y.shape)
+        train_targets = []
+        for i in range(train_y.shape[0]):
+            if not train_targets:
+                for c in range(19):
+                    #print(c*n_col, (c+1)*n_col)
+                    train_targets.append([train_y[i][c*n_col:(c+1)*n_col]])
+                for c in range(2):
+                    #print(offset+3*c, offset+3*(c+1))
+                    train_targets.append([train_y[i][offset+c*3:offset+(c+1)*3]])
+            else:
+                for c in range(19):
+                    train_targets[c].append(train_y[i][c*n_col:(c+1)*n_col])
+                for c in range(2):
+                    train_targets[19+c].append(train_y[i][offset+c*3:offset+(c+1)*3])
+        train_targets = [np.array(e) for e in train_targets]
+        #for prova in train_targets:
+        #    print(prova)
+        #    print(prova.shape)
 
+    
     validation_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     validation_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-    validation_generator = train_datagen.flow_from_dataframe(
-        dataframe=validation_metadata_dataframe,
-        directory=validation_image_path,
-        x_col="map_tiles",
-        y_col=columns,
-        subset="training",
-        batch_size=batch_size,
-        seed=42,
-        shuffle=True,
-        class_mode="raw",
-        target_size=(target_size_1, target_size_2))
-    """validation_generator = []
-    for class_name in ['peak', 'playground', 'train_station']:
-        validation_generator_class = train_datagen.flow_from_dataframe(
-            dataframe=validation_metadata_dataframe,
-            directory=validation_image_path,
-            x_col="map_tiles",
-            y_col=class_name,
-            subset="training",
-            batch_size=batch_size,
-            seed=42,
-            shuffle=True,
-            class_mode="raw",
-            target_size=(target_size_1, target_size_2))
-        validation_generator.append(validation_generator_class)"""
+    
+    validation_x, validation_y = generate_data_from_directory(datagenerator, \
+                                                validation_metadata_dataframe, validation_image_path, \
+                                                columns, batch_size, target_size_1, target_size_2)
+    if not multitask:
+        validation_targets = validation_y
+    else:
+        print(validation_x.shape)
+        print(validation_y.shape)
+        validation_targets = []
+        for i in range(validation_y.shape[0]):
+            if not validation_targets:
+                for c in range(19):
+                    validation_targets.append([validation_y[i][c*n_col:(c+1)*n_col]])
+                for c in range(2):
+                    validation_targets.append([validation_y[i][offset+c*3:offset+(c+1)*3]])
+            else:
+                for c in range(19):
+                    validation_targets[c].append(validation_y[i][c*n_col:(c+1)*n_col])
+                for c in range(2):
+                    validation_targets[19+c].append(validation_y[i][offset+c*3:offset+(c+1)*3])
+        validation_targets = [np.array(e) for e in validation_targets]
 
 
     # Model creation
-    build = Map_Embedding(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
-    #build = Map_Embedding2(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
+    if not multitask:
+        build = Map_Embedding(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3))
+    else:
+        build = Map_Embedding2(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3), binarization=binarization)
 
     #build.summary()
     #plot_model(build, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     # compile model
     metrics = ['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
-    build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
-
-    """
-    loss_dict = {}
-    for i in range(19):
-        loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
-    for i in range(19,21):
-        loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
-    build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)
-    """
+    if not multitask:
+        build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
+    else:
+        loss_dict = {}
+        for i in range(19):
+            loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
+        for i in range(19,21):
+            loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
+        build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)
 
     # Model training
 
@@ -155,14 +201,14 @@ if __name__ == '__main__':
     fname_param = os.path.join('MODEL', '{}.best.h5'.format(hyperparams_name))
 
     model_checkpoint = ModelCheckpoint(
-        fname_param, monitor='val_accuracy', verbose=0, save_best_only=True, mode='min')
+        fname_param, monitor='val_loss', verbose=0, save_best_only=True, mode='min')
 
     print("training model...")
     ts = time.time()
-    history = build.fit(train_generator,
+    history = build.fit(train_x, train_targets,
                         epochs=nb_epoch,
                         batch_size=batch_size,
-                        validation_data=validation_generator,
+                        validation_data=(validation_x, validation_targets),
                         callbacks=[model_checkpoint],
                         verbose=1)
     build.save_weights(os.path.join(
@@ -174,12 +220,14 @@ if __name__ == '__main__':
     # Save model
     hyperparams_name = 'Map_Embedding'
     build.save_weights(os.path.join('weight', '{}.h5'.format(hyperparams_name)), overwrite=True)
+    json.dump(history.history, open('results/history.json', 'w'))
+
 
     # Prediction
     test_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     test_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
 
-    test_generator = train_datagen.flow_from_dataframe(
+    test_generator = datagenerator.flow_from_dataframe(
         dataframe=test_metadata_dataframe,
         directory=test_image_path,
         x_col="map_tiles",
@@ -191,7 +239,7 @@ if __name__ == '__main__':
         target_size=(target_size_1, target_size_2))
 
 
-    embedding = prediction(build, test_generator, path= 'weight/Map_Embedding.h5', load = True)
+    embedding = prediction(build, test_generator, path= 'weight/Map_Embedding.h5', load = True, multitask=multitask)
 
     # Save results in pickle format
     with open(os.path.join('results', hyperparams_name + ".pickle"),'wb') as f: pickle.dump(embedding, f)

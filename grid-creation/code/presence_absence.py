@@ -19,8 +19,8 @@ columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 
 
 for field in columns:
     metadata_dataframe[field] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
-    #metadata_dataframe[f'{field}_yes'] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
-    #metadata_dataframe[f'{field}_no'] = (~metadata_dataframe[f'{field}_yes'].astype(bool)).astype(int)
+    metadata_dataframe[f'{field}_yes'] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
+    metadata_dataframe[f'{field}_no'] = (~metadata_dataframe[f'{field}_yes'].astype(bool)).astype(int)
     #metadata_dataframe = metadata_dataframe.drop(columns=[field])
 
 for field in not_binary_columns:

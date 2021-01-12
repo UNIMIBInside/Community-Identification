@@ -579,6 +579,7 @@ def Map_Embedding2(include_top=True,
              vector_space=128,
              classes=21, #inserire il numero di classi per creare
              freeze=True,
+             binarization=False,
              **kwargs):
     name = 'map_embedding'
     if weights:
@@ -587,16 +588,20 @@ def Map_Embedding2(include_top=True,
     if freeze:
       resnet.trainable=False
     #flat1 = layers.Flatten()(resnet.layers.output) # un flatten aggount
+    class1 = layers.Dense(vector_space, activation='selu', name=name + '_selu')(resnet.layers[-1].output)#(flat1)
 
-    task_layers = [layers.Dense(4, activation='selu', name=name + f'_class{i}')(resnet.layers[-1].output) \
+    task_layers = [layers.Dense(4, activation='selu', name=name + f'_class{i}')(class1) \
                                                                           for i in range(classes)]
 
-    output_layers = [layers.Dense(2, activation='sigmoid', name=name + f'_output{i}')(task_layers[i]) \
+    if not binarization:
+      output_layers = [layers.Dense(1, activation='sigmoid', name=name + f'_output{i}')(task_layers[i]) \
                                                                           for i in range(classes-2)]
-    output_layers.append(layers.Dense(3, activation='sigmoid', name=name + '_output19')(task_layers[19]))
-    #output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output19')(task_layers[19]))
-    output_layers.append(layers.Dense(3, activation='sigmoid', name=name + '_output20')(task_layers[20]))
-    #output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output20')(task_layers[20]))
+    else:
+      output_layers = [layers.Dense(2, activation='softmax', name=name + f'_output{i}')(task_layers[i]) \
+                                                                          for i in range(classes-2)]
+    
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output19')(task_layers[19]))
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output20')(task_layers[20]))
 
     model = training.Model(inputs=resnet.input, outputs=output_layers)
 
@@ -604,9 +609,12 @@ def Map_Embedding2(include_top=True,
 
 
 
-def prediction(model, input, path, load = False):
+def prediction(model, input, path, load = False, multitask=False):
     if load:
         model.load_weights(path)
-    embedding = model.layers[:-1]
+    if not multitask:
+      embedding = model.layers[:-1]
+    else:
+      embedding = model.layers[:-42]
     embedding_model = tf.keras.Model(inputs=embedding[0].input, outputs=embedding[-1].output)
     return embedding_model.predict(input)

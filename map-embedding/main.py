@@ -27,12 +27,21 @@ def generate_data_from_directory(datagenerator, metadata_dataframe, image_path, 
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
     total_images = data_generator.n
-    steps = (total_images//batch_size) + 1
+    steps = int(np.ceil(total_images/batch_size))
+
     x , y = [], []
     for i in range(steps):
         a , b = data_generator.next()
+
+        #a = tf.convert_to_tensor(a)
+        #b = tf.convert_to_tensor(b)
+        a = np.array(a, dtype=np.uint8)
+        b = np.array(b, dtype=np.uint8)
+        
         x.extend(a)
         y.extend(b)
+
+    #return tf.convert_to_tensor(x), tf.convert_to_tensor(y)
     return np.array(x), np.array(y)
 
 
@@ -119,15 +128,24 @@ if __name__ == '__main__':
 
     train_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/city_merged/marker_metadata_binarized.csv')
     train_image_path = folder_path + '/grid-creation/data/city_merged/map_tiles/'
-    
+
     train_x, train_y = generate_data_from_directory(datagenerator, \
                                                     train_metadata_dataframe, train_image_path, \
                                                     columns, batch_size, target_size_1, target_size_2)
+
     if not multitask:
         train_targets = train_y
     else:
         print(train_x.shape)
         print(train_y.shape)
+
+        train_targets = [[train_y[i][c*n_col:(c+1)*n_col] for i in range(train_y.shape[0])] for c in range(19)]
+        train_targets.append([train_y[i][offset+0*3:offset+(0+1)*3] for i in range(train_y.shape[0])])
+        train_targets.append([train_y[i][offset+1*3:offset+(1+1)*3] for i in range(train_y.shape[0])])
+        train_targets = [np.array(e) for e in train_targets]
+        #train_targets = [tf.convert_to_tensor(e) for e in train_targets]
+
+        """    
         train_targets = []
         for i in range(train_y.shape[0]):
             if not train_targets:
@@ -142,12 +160,16 @@ if __name__ == '__main__':
                     train_targets[c].append(train_y[i][c*n_col:(c+1)*n_col])
                 for c in range(2):
                     train_targets[19+c].append(train_y[i][offset+c*3:offset+(c+1)*3])
+        
         train_targets = [np.array(e) for e in train_targets]
+        """
+
+        #print(len(train_targets))
         #for prova in train_targets:
         #    print(prova)
         #    print(prova.shape)
 
-    
+
     validation_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     validation_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
     
@@ -159,6 +181,14 @@ if __name__ == '__main__':
     else:
         print(validation_x.shape)
         print(validation_y.shape)
+
+        validation_targets = [[validation_y[i][c*n_col:(c+1)*n_col] for i in range(validation_y.shape[0])] for c in range(19)]
+        train_targets.append([validation_y[i][offset+0*3:offset+(0+1)*3] for i in range(validation_y.shape[0])])
+        validation_targets.append([validation_y[i][offset+1*3:offset+(1+1)*3] for i in range(validation_y.shape[0])])
+        validation_targets = [np.array(e) for e in validation_targets]
+        #validation_targets = [tf.convert_to_tensor(e) for e in validation_targets]
+
+        """
         validation_targets = []
         for i in range(validation_y.shape[0]):
             if not validation_targets:
@@ -172,6 +202,7 @@ if __name__ == '__main__':
                 for c in range(2):
                     validation_targets[19+c].append(validation_y[i][offset+c*3:offset+(c+1)*3])
         validation_targets = [np.array(e) for e in validation_targets]
+        """
 
 
     # Model creation
@@ -221,6 +252,7 @@ if __name__ == '__main__':
     hyperparams_name = 'Map_Embedding'
     build.save_weights(os.path.join('weight', '{}.h5'.format(hyperparams_name)), overwrite=True)
     json.dump(history.history, open('results/history.json', 'w'))
+    pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')
 
 
     # Prediction

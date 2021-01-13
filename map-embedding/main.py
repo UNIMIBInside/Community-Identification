@@ -183,7 +183,7 @@ if __name__ == '__main__':
         print(validation_y.shape)
 
         validation_targets = [[validation_y[i][c*n_col:(c+1)*n_col] for i in range(validation_y.shape[0])] for c in range(19)]
-        train_targets.append([validation_y[i][offset+0*3:offset+(0+1)*3] for i in range(validation_y.shape[0])])
+        validation_targets.append([validation_y[i][offset+0*3:offset+(0+1)*3] for i in range(validation_y.shape[0])])
         validation_targets.append([validation_y[i][offset+1*3:offset+(1+1)*3] for i in range(validation_y.shape[0])])
         validation_targets = [np.array(e) for e in validation_targets]
         #validation_targets = [tf.convert_to_tensor(e) for e in validation_targets]

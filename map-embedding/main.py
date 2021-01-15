@@ -14,37 +14,6 @@ from keras.applications.resnet50 import preprocess_input
 from keras.utils.vis_utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-def generate_data_from_directory(datagenerator, metadata_dataframe, image_path, columns, \
-                                                    batch_size, target_size_1, target_size_2):
-    data_generator = datagenerator.flow_from_dataframe(
-        dataframe=metadata_dataframe,
-        directory=image_path,
-        x_col="map_tiles",
-        y_col=columns,
-        subset="training",
-        batch_size=batch_size,
-        seed=42,
-        shuffle=True,
-        class_mode="raw",
-        target_size=(target_size_1, target_size_2))
-    total_images = data_generator.n
-    steps = int(np.ceil(total_images/batch_size))
-
-    x , y = [], []
-    for i in range(steps):
-        a , b = data_generator.next()
-
-        #a = tf.convert_to_tensor(a)
-        #b = tf.convert_to_tensor(b)
-        a = np.array(a, dtype=np.uint8)
-        b = np.array(b, dtype=np.uint8)
-        
-        x.extend(a)
-        y.extend(b)
-
-    #return tf.convert_to_tensor(x), tf.convert_to_tensor(y)
-    return np.array(x), np.array(y)
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--multitasking', help="Use multitask neural network", \
@@ -84,12 +53,12 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch = 1  # number of epoch at training stage
+    nb_epoch =   # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
     target_size_2 = 224
-    learning_rate = 0.001
+    learning_rate = 
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation
@@ -139,13 +108,17 @@ if __name__ == '__main__':
     # compile model
     metrics = ['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
     if not multitask:
-        build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
+        #build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
+        build.compile(optimizer=Adam(lr=learning_rate), loss='binary_crossentropy', metrics=metrics)
     else:
         loss_dict = {}
+        loss_weight_dict = {}
         for i in range(19):
             loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
+            loss_weight_dict[f'map_embedding_output{i}'] = 1.0
         for i in range(19,21):
             loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
+            loss_weight_dict[f'map_embedding_output{i}'] = 1.0
         build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)
 
     # Model training
@@ -186,7 +159,6 @@ if __name__ == '__main__':
     json.dump(history.history, open('results/history.json', 'w'))
     pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')
 
-
     # Prediction
     datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)
     test_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
@@ -199,12 +171,15 @@ if __name__ == '__main__':
         y_col=None,
         batch_size=1,
         seed=42,
-        shuffle=True,
+        shuffle=False,
         class_mode=None,
         target_size=(target_size_1, target_size_2))
 
-
-    embedding = prediction(build, test_generator, path= 'weight/Map_Embedding.h5', load = True, multitask=multitask)
-
+    embedding = prediction(build, test_generator, path= 'weight/Map_embedding_multi_128.best.h5', load = True, multitask=multitask)
+    
     # Save results in pickle format
-    with open(os.path.join('results', hyperparams_name + ".pickle"),'wb') as f: pickle.dump(embedding, f)
+    with open(os.path.join('results', "Map_Embedding_multi_class.pickle"),'wb') as f: pickle.dump(embedding, f)
+
+    #build.load_weights('weight/Map_embedding_multi_128.best.h5')
+    #build.evaluate(validation_x, validation_targets, batch_size)
+    

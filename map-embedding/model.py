@@ -566,6 +566,7 @@ def Map_Embedding(include_top=True,
     #flat1 = layers.Flatten()(resnet.layers.output) # un flatten aggount
     class1 = layers.Dense(vector_space, activation='selu', name=name + '_selu')(resnet.layers[-1].output)#(flat1)
     output = layers.Dense(classes, activation='sigmoid', name=name + '_output')(class1)
+
     model = training.Model(inputs=resnet.input, outputs=output)
 
     return model
@@ -616,5 +617,10 @@ def prediction(model, input, path, load = False, multitask=False):
       embedding = model.layers[:-1]
     else:
       embedding = model.layers[:-42]
+    
+    #embedding_class_out = [model.layers[-i].output for i in range(21, 0, -1)]
+    #embedding_model = tf.keras.Model(inputs=embedding[0].input, outputs=embedding_class_out)
+    #embedding = model.layers[:-42]
+    
     embedding_model = tf.keras.Model(inputs=embedding[0].input, outputs=embedding[-1].output)
     return embedding_model.predict(input)

@@ -18,6 +18,8 @@ columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 
             'highway_residential', 'highway_cycleway', 'highway_pedestrian']
 
 for field in columns:
+    metadata_dataframe[f'{field}_no'] = 0
+    metadata_dataframe[f'{field}_yes'] = 0
     metadata_dataframe[field] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
     metadata_dataframe[f'{field}_yes'] = metadata_dataframe.apply(lambda x: utils.binarization(x[field]), axis=1)
     metadata_dataframe[f'{field}_no'] = (~metadata_dataframe[f'{field}_yes'].astype(bool)).astype(int)

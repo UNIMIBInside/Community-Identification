@@ -5,7 +5,7 @@ from keras.applications.resnet50 import preprocess_input
 
 
 def generate_data(datagenerator, metadata_dataframe, image_path, columns, \
-                                                    batch_size, target_size_1, target_size_2):
+                                            batch_size, target_size_1, target_size_2, shuffle=True):
     data_generator = datagenerator.flow_from_dataframe(
         dataframe=metadata_dataframe,
         directory=image_path,
@@ -14,13 +14,13 @@ def generate_data(datagenerator, metadata_dataframe, image_path, columns, \
         subset="training",
         batch_size=batch_size,
         seed=42,
-        shuffle=True,
+        shuffle=shuffle,
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
     return data_generator
 
 def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, columns, \
-                                                    batch_size, target_size_1, target_size_2):
+                                    batch_size, target_size_1, target_size_2, shuffle=True):
     data_generator = datagenerator.flow_from_dataframe(
         dataframe=metadata_dataframe,
         directory=image_path,
@@ -29,7 +29,7 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
         subset="training",
         batch_size=batch_size,
         seed=42,
-        shuffle=True,
+        shuffle=shuffle,
         class_mode="raw",
         target_size=(target_size_1, target_size_2))
     total_images = data_generator.n
@@ -65,15 +65,15 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         n_col = 1
         offset = 19
     else:
-        columns = ['peak_yes', 'peak_no', 'playground_yes', 'playground_no', 'train_station_yes', \
-            'train_station_no', 'metro_station_yes', 'metro_station_no', 'tram_stop_yes', \
-            'tram_stop_no', 'bus_stop_yes', 'bus_stop_no', 'university_yes', 'university_no', \
-            'parking_car_yes', 'parking_car_no', 'parking_bicycle_yes', 'parking_bicycle_no', \
-            'parking_motorcycle_yes', 'parking_motorcycle_no', 'water_natural_yes', 'water_natural_no', \
-            'water_artificial_yes', 'water_artificial_no', 'park_yes', 'park_no', 'grassland_yes', \
-            'grassland_no', 'farmland_yes', 'farmland_no', 'aerodrome_yes', 'aerodrome_no', \
-            'highway_residential_yes', 'highway_residential_no', 'highway_cycleway_yes', \
-            'highway_cycleway_no', 'highway_pedestrian_yes', 'highway_pedestrian_no', \
+        columns = ['peak_no', 'peak_yes', 'playground_no', 'playground_yes', 'train_station_no', \
+            'train_station_yes', 'metro_station_no', 'metro_station_yes', 'tram_stop_no', \
+            'tram_stop_yes', 'bus_stop_no', 'bus_stop_yes', 'university_no', 'university_yes', \
+            'parking_car_no', 'parking_car_yes', 'parking_bicycle_no', 'parking_bicycle_yes', \
+            'parking_motorcycle_no', 'parking_motorcycle_yes', 'water_natural_no', 'water_natural_yes', \
+            'water_artificial_no', 'water_artificial_yes', 'park_no', 'park_yes', 'grassland_no', \
+            'grassland_yes', 'farmland_no', 'farmland_yes', 'aerodrome_no', 'aerodrome_yes', \
+            'highway_residential_no', 'highway_residential_yes', 'highway_cycleway_no', \
+            'highway_cycleway_yes', 'highway_pedestrian_no', 'highway_pedestrian_yes', \
             'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
         n_col = 2
@@ -111,11 +111,11 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
     
     if not multitask:
         validation_data = generate_data(datagenerator, validation_metadata_dataframe, validation_image_path, \
-                                                    columns, batch_size, target_size_1, target_size_2)
+                                                    columns, batch_size, target_size_1, target_size_2, shuffle=False)
     else:
         validation_x, validation_y = generate_data_multitasking(datagenerator, \
                                                     validation_metadata_dataframe, validation_image_path, \
-                                                    columns, batch_size, target_size_1, target_size_2)
+                                                    columns, batch_size, target_size_1, target_size_2, shuffle=False)
         print(validation_x.shape)
         print(validation_y.shape)
 

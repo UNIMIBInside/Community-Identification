@@ -46,9 +46,15 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
         
         x.extend(a)
         y.extend(b)
+    
+    del data_generator
+    #data_x = tf.convert_to_tensor(x)
+    #data_y = tf.convert_to_tensor(y)
+    data_x = np.array(x)
+    data_y = np.array(y)
+    del a, b, x, y
 
-    #return tf.convert_to_tensor(x), tf.convert_to_tensor(y)
-    return np.array(x), np.array(y)
+    return data_x, data_y
 
 
 # Image Creation

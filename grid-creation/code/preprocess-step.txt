@@ -1,0 +1,9 @@
+Per creare la cartella unica (chiamata city_merged) in dei map_tiles e dei metadata del training
+- python3 merge_data.py -f data/city
+
+Per creare la cartella unica (chiamata milano_merged) dei map_tiles e dei metadata del validation
+- python3 merge_data.py -f data/milano
+
+
+Per eseguire la binarizzazione sui dataframe dei metadata
+- python3 presence_absence.py -t data/city_merged/marker_metadata.csv -v data/milano_merged/marker_metadata.csv

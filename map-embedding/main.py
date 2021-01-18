@@ -53,12 +53,12 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch =   # number of epoch at training stage
+    nb_epoch = 50  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
     target_size_2 = 224
-    learning_rate = 
+    learning_rate = 0.001
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation
@@ -75,7 +75,6 @@ if __name__ == '__main__':
         os.mkdir(folder_path + '/map-embedding/' + path_result)
     if os.path.isdir(folder_path + '/map-embedding/' + path_weight) is False:
         os.mkdir(folder_path + '/map-embedding/' + path_weight)
-
     # Image Creation
 
     if not load_input:
@@ -122,8 +121,10 @@ if __name__ == '__main__':
         build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)
 
     # Model training
-
-    hyperparams_name = 'Map_embedding_{}'.format(vector_shape)
+    if multitask:
+        hyperparams_name = 'Map_embedding_{}_multitask'.format(vector_shape)
+    else:
+        hyperparams_name = 'Map_embedding_{}'.format(vector_shape)
     fname_param = os.path.join('MODEL', '{}.best.h5'.format(hyperparams_name))
 
     model_checkpoint = ModelCheckpoint(
@@ -154,7 +155,10 @@ if __name__ == '__main__':
     print("\nelapsed time (training): %.3f seconds\n" % (time.time() - ts))
 
     # Save model
-    hyperparams_name = 'Map_Embedding'
+    if multitask:
+        hyperparams_name = 'Map_Embedding_Multitask'
+    else:
+        hyperparams_name = 'Map_Embedding'
     build.save_weights(os.path.join('weight', '{}.h5'.format(hyperparams_name)), overwrite=True)
     json.dump(history.history, open('results/history.json', 'w'))
     pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')

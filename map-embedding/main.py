@@ -67,6 +67,7 @@ if __name__ == '__main__':
     path_model = 'MODEL'
     path_result = 'results'
     path_weight = 'weight'
+    path_data = 'data'
     if os.path.isdir(folder_path + '/map-embedding/' + path_ret) is False:
         os.mkdir(folder_path + '/map-embedding/' + path_ret)
     if os.path.isdir(folder_path + '/map-embedding/' + path_model) is False:
@@ -75,24 +76,26 @@ if __name__ == '__main__':
         os.mkdir(folder_path + '/map-embedding/' + path_result)
     if os.path.isdir(folder_path + '/map-embedding/' + path_weight) is False:
         os.mkdir(folder_path + '/map-embedding/' + path_weight)
+    if os.path.isdir(folder_path + '/map-embedding/' + path_data) is False:
+        os.mkdir(folder_path + '/map-embedding/' + path_data)
+    
     # Image Creation
-
     if not load_input:
         train_data, validation_data = creation_input_model(folder_path, multitask, binarization, \
                                                         batch_size, target_size_1, target_size_2)
         if isinstance(train_data, tuple):
             train_x, train_targets = train_data
             validation_x, validation_targets = validation_data
-            with open(os.path.join('results', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
-            with open(os.path.join('results', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
-            with open(os.path.join('results', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
-            with open(os.path.join('results', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
+            with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
+            with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
+            with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
+            with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
     
     else:
-        train_x = pickle.load(open(os.path.join('results', "train_x.pickle"),'rb'))
-        train_targets = pickle.load(open(os.path.join('results', "train_targets.pickle"),'rb'))
-        validation_x = pickle.load(open(os.path.join('results', "validation_x.pickle"),'rb'))
-        validation_targets = pickle.load(open(os.path.join('results', "validation_targets.pickle"),'rb'))
+        train_x = pickle.load(open(os.path.join('data', "train_x.pickle"),'rb'))
+        train_targets = pickle.load(open(os.path.join('data', "train_targets.pickle"),'rb'))
+        validation_x = pickle.load(open(os.path.join('data', "validation_x.pickle"),'rb'))
+        validation_targets = pickle.load(open(os.path.join('data', "validation_targets.pickle"),'rb'))
 
 
     # Model creation
@@ -155,11 +158,6 @@ if __name__ == '__main__':
     print("\nelapsed time (training): %.3f seconds\n" % (time.time() - ts))
 
     # Save model
-    if multitask:
-        hyperparams_name = 'Map_Embedding_Multitask'
-    else:
-        hyperparams_name = 'Map_Embedding'
-    build.save_weights(os.path.join('weight', '{}.h5'.format(hyperparams_name)), overwrite=True)
     json.dump(history.history, open('results/history.json', 'w'))
     pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')
 
@@ -179,7 +177,7 @@ if __name__ == '__main__':
         class_mode=None,
         target_size=(target_size_1, target_size_2))
 
-    embedding = prediction(build, test_generator, path= f'weight/{hyperparams_name}.best.h5', load = True, multitask=multitask)
+    embedding = prediction(build, test_generator, path= f'MODEL/{hyperparams_name}.best.h5', load = True, multitask=multitask)
     
     # Save results in pickle format
     with open(os.path.join('results', f"{hyperparams_name}.pickle"),'wb') as f: pickle.dump(embedding, f)

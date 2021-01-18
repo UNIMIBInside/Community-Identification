@@ -175,10 +175,10 @@ if __name__ == '__main__':
         class_mode=None,
         target_size=(target_size_1, target_size_2))
 
-    embedding = prediction(build, test_generator, path= 'weight/Map_embedding_multi_128.best.h5', load = True, multitask=multitask)
+    embedding = prediction(build, test_generator, path= f'weight/{hyperparams_name}.best.h5', load = True, multitask=multitask)
     
     # Save results in pickle format
-    with open(os.path.join('results', "Map_Embedding_multi_class.pickle"),'wb') as f: pickle.dump(embedding, f)
+    with open(os.path.join('results', f"{hyperparams_name}.pickle"),'wb') as f: pickle.dump(embedding, f)
 
     #build.load_weights('weight/Map_embedding_multi_128.best.h5')
     #build.evaluate(validation_x, validation_targets, batch_size)

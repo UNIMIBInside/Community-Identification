@@ -158,8 +158,12 @@ if __name__ == '__main__':
     print("\nelapsed time (training): %.3f seconds\n" % (time.time() - ts))
 
     # Save model
-    json.dump(history.history, open('results/history.json', 'w'))
-    pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')
+    if multitask:
+        json.dump(history.history, open('results/history_multitask.json', 'w'))
+        pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history_multitask.csv')
+    else:
+        json.dump(history.history, open('results/history.json', 'w'))
+        pd.DataFrame.from_dict(history.history, orient="index").to_csv('results/history.csv')
 
     # Prediction
     datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)

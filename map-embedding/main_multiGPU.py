@@ -119,10 +119,10 @@ if __name__ == '__main__':
         else:
             loss_dict = {}
             loss_weight_dict = {}
-            for i in range(19):
+            for i in range(16):
                 loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
                 loss_weight_dict[f'map_embedding_output{i}'] = 1.0
-            for i in range(19,21):
+            for i in range(16,18):
                 loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
                 loss_weight_dict[f'map_embedding_output{i}'] = 1.0
             build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)

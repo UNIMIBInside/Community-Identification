@@ -86,10 +86,10 @@ if __name__ == '__main__':
         if isinstance(train_data, tuple):
             train_x, train_targets = train_data
             validation_x, validation_targets = validation_data
-            with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
-            with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
-            with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
-            with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
+            #with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
+            #with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
+            #with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
+            #with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
     
     else:
         train_x = pickle.load(open(os.path.join('data', "train_x.pickle"),'rb'))
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     else:
         build = Map_Embedding2(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3), binarization=binarization)
 
-    #build.summary()
+    build.summary()
     #plot_model(build, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     # compile model
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     else:
         loss_dict = {}
         loss_weight_dict = {}
-        for i in range(19):
+        for i in range(16):
             loss_dict[f'map_embedding_output{i}'] = 'binary_crossentropy'
             loss_weight_dict[f'map_embedding_output{i}'] = 1.0
-        for i in range(19,21):
+        for i in range(16,18):
             loss_dict[f'map_embedding_output{i}'] = 'categorical_crossentropy'
             loss_weight_dict[f'map_embedding_output{i}'] = 1.0
         build.compile(optimizer=Adam(lr=learning_rate), loss=loss_dict, metrics=metrics)

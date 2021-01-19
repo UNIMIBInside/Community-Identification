@@ -3,8 +3,7 @@ import pandas as pd
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from keras.applications.resnet50 import preprocess_input
 
-# 'parking_motorcycle_no', 'parking_motorcycle_yes', 'parking_bicycle_no', 'parking_bicycle_yes', 'highway_residential_no', 'highway_residential_yes',
-# 'parking_bicycle', 'parking_motorcycle', 'highway_residential',
+
 def generate_data(datagenerator, metadata_dataframe, image_path, columns, \
                                             batch_size, target_size_1, target_size_2, shuffle=True):
     data_generator = datagenerator.flow_from_dataframe(
@@ -44,10 +43,10 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
         #b = tf.convert_to_tensor(b)
         a = np.array(a, dtype=np.uint8)
         b = np.array(b, dtype=np.uint8)
-        'parking_motorcycle_no', 'parking_motorcycle_yes',
+        
         x.extend(a)
         y.extend(b)
-
+    
     del data_generator
     #data_x = tf.convert_to_tensor(x)
     #data_y = tf.convert_to_tensor(y)
@@ -70,7 +69,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
             'highway_cycleway', 'highway_pedestrian', 'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
         n_col = 1
-        offset = 19
+        offset = 16
     else:
         columns = ['peak_no', 'peak_yes', 'playground_no', 'playground_yes', 'train_station_no', \
             'train_station_yes', 'metro_station_no', 'metro_station_yes', 'tram_stop_no', \
@@ -84,7 +83,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
             'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
         n_col = 2
-        offset = 38
+        offset = 32
 
     train_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/city_merged/marker_metadata_binarized.csv')
     train_image_path = folder_path + '/grid-creation/data/city_merged/map_tiles/'
@@ -115,7 +114,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
 
     validation_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     validation_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-
+    
     if not multitask:
         validation_data = generate_data(datagenerator, validation_metadata_dataframe, validation_image_path, \
                                                     columns, batch_size, target_size_1, target_size_2, shuffle=False)
@@ -131,7 +130,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         validation_targets.append([validation_y[i][offset+1*3:offset+(1+1)*3] for i in range(validation_y.shape[0])])
         validation_targets = [np.array(e) for e in validation_targets]
         #validation_targets = [tf.convert_to_tensor(e) for e in validation_targets]
-
+    
         validation_data = (validation_x, validation_targets)
 
     return train_data, validation_data

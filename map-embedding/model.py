@@ -554,7 +554,7 @@ def Map_Embedding(include_top=True,
              input_shape=None,
              pooling='avg',
              vector_space=128,
-             classes=25, #inserire il numero di classi per creare
+             classes=22, #inserire il numero di classi per creare
              freeze=True,
              **kwargs):
     name = 'map_embedding'
@@ -601,8 +601,8 @@ def Map_Embedding2(include_top=True,
       output_layers = [layers.Dense(2, activation='softmax', name=name + f'_output{i}')(task_layers[i]) \
                                                                           for i in range(classes-2)]
 
-    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-2))(task_layers[19]))
-    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-1))(task_layers[20]))
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-2))(task_layers[classes-2]))
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-1))(task_layers[classes-1]))
 
     model = training.Model(inputs=resnet.input, outputs=output_layers)
 
@@ -616,7 +616,7 @@ def prediction(model, input, path, load = False, multitask=False):
     if not multitask:
       embedding = model.layers[:-1]
     else:
-      embedding = model.layers[:-42]
+      embedding = model.layers[:-36]
 
     #embedding_class_out = [model.layers[-i].output for i in range(21, 0, -1)]
     #embedding_model = tf.keras.Model(inputs=embedding[0].input, outputs=embedding_class_out)

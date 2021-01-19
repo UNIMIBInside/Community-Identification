@@ -601,8 +601,8 @@ def Map_Embedding2(include_top=True,
       output_layers = [layers.Dense(2, activation='softmax', name=name + f'_output{i}')(task_layers[i]) \
                                                                           for i in range(classes-2)]
 
-    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output16')(task_layers[19]))
-    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output17')(task_layers[20]))
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-2))(task_layers[19]))
+    output_layers.append(layers.Dense(3, activation='softmax', name=name + '_output{}'.format(classes-1))(task_layers[20]))
 
     model = training.Model(inputs=resnet.input, outputs=output_layers)
 

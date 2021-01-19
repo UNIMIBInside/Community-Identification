@@ -48,11 +48,11 @@ if __name__ == '__main__':
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     nb_epoch = 50  # number of epoch at training stage
-    batch_size = 64 # number of batch at training stage
+    batch_size = 64 * strategy.num_replicas_in_sync # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
     target_size_2 = 224
-    learning_rate = 0.001
+    learning_rate = 0.001 * strategy.num_replicas_in_sync
     #CACHEDATA = True  # cache data or NOT
 
     # Folder creation
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         os.mkdir(folder_path + '/map-embedding/' + path_weight)
     if os.path.isdir(folder_path + '/map-embedding/' + path_data) is False:
         os.mkdir(folder_path + '/map-embedding/' + path_data)
-    
+
     # Image Creation
     if not load_input:
         train_data, validation_data = creation_input_model(folder_path, multitask, binarization, \
@@ -84,7 +84,7 @@ if __name__ == '__main__':
             with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
             with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
             with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
-    
+
     else:
         train_x = pickle.load(open(os.path.join('data', "train_x.pickle"),'rb'))
         train_targets = pickle.load(open(os.path.join('data', "train_targets.pickle"),'rb'))
@@ -177,10 +177,9 @@ if __name__ == '__main__':
         target_size=(target_size_1, target_size_2))
 
     embedding = prediction(build, test_generator, path= f'MODEL/{hyperparams_name}.best.h5', load = True, multitask=multitask)
-    
+
     # Save results in pickle format
     with open(os.path.join('results', f"{hyperparams_name}.pickle"),'wb') as f: pickle.dump(embedding, f)
 
     #build.load_weights('weight/Map_embedding_multi_128.best.h5')
     #build.evaluate(validation_x, validation_targets, batch_size)
-    

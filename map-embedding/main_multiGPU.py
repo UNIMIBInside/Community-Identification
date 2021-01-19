@@ -13,7 +13,7 @@ from keras.optimizers import Adam
 from keras.applications.resnet50 import preprocess_input
 from keras.utils.vis_utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from keras.backend as K
+import keras.backend as K
 
 
 parser = argparse.ArgumentParser()
@@ -51,7 +51,7 @@ def get_f1(y_true, y_pred): #taken from old keras source code
 if __name__ == '__main__':
 
     strategy = tf.distribute.MirroredStrategy()
-
+    print('numero di gpu: ', strategy.num_replicas_in_sync)
     np.random.seed(1234)
     tf.random.set_seed(1234)
     os.chdir(os.getcwd())

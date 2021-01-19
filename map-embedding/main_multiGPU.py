@@ -13,6 +13,7 @@ from keras.optimizers import Adam
 from keras.applications.resnet50 import preprocess_input
 from keras.utils.vis_utils import plot_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.backend as K
 
 
 parser = argparse.ArgumentParser()
@@ -36,6 +37,15 @@ if args.binarization and not args.multitasking:
 multitask = args.multitasking
 binarization = args.binarization
 load_input = args.load_input
+
+def get_f1(y_true, y_pred): #taken from old keras source code
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    recall = true_positives / (possible_positives + K.epsilon())
+    f1_val = 2*(precision*recall)/(precision+recall+K.epsilon())
+    return f1_val
 
 
 if __name__ == '__main__':
@@ -77,13 +87,13 @@ if __name__ == '__main__':
     if not load_input:
         train_data, validation_data = creation_input_model(folder_path, multitask, binarization, \
                                                         batch_size, target_size_1, target_size_2)
-        if isinstance(train_data, tuple):
+         if isinstance(train_data, tuple):
             train_x, train_targets = train_data
             validation_x, validation_targets = validation_data
-            with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
-            with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
-            with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
-            with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
+        #    with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)
+        #    with open(os.path.join('data', "train_targets.pickle"),'wb') as f: pickle.dump(train_targets, f)
+        #    with open(os.path.join('data', "validation_x.pickle"),'wb') as f: pickle.dump(validation_x, f)
+        #    with open(os.path.join('data', "validation_targets.pickle"),'wb') as f: pickle.dump(validation_targets, f)
 
     else:
         train_x = pickle.load(open(os.path.join('data', "train_x.pickle"),'rb'))
@@ -102,7 +112,7 @@ if __name__ == '__main__':
         #plot_model(build, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
         # compile model
-        metrics = ['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()]
+        metrics = ['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall(), get_f1]
         if not multitask:
             #build.compile(optimizer=Adam(lr=learning_rate), loss='categorical_crossentropy', metrics=metrics)
             build.compile(optimizer=Adam(lr=learning_rate), loss='binary_crossentropy', metrics=metrics)

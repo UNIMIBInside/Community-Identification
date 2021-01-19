@@ -59,7 +59,7 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
 
 
 # Image Creation
-def creation_input_model(folder_path, multi'parking_motorcycle_no', 'parking_motorcycle_yes',task, binarization, batch_size, target_size_1, target_size_2):
+def creation_input_model(folder_path, multitask, binarization, batch_size, target_size_1, target_size_2):
 
     datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)
 

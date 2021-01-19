@@ -12,10 +12,15 @@ folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 train_dataframe = pd.read_csv(f'{folder_path}/{train_file_path}')
 validation_dataframe = pd.read_csv(f'{folder_path}/{validation_file_path}')
 
+train_dataframe['highway'] =  train_dataframe['highway'] + train_dataframe['highway_residential']
+train_dataframe = train_dataframe.drop(columns=['highway_residential'])
+validation_dataframe['highway'] =  validation_dataframe['highway'] + validation_dataframe['highway_residential']
+validation_dataframe = validation_dataframe.drop(columns=['highway_residential'])
+
 columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', \
             'bus_stop', 'university', 'parking_car', 'parking_bicycle', 'parking_motorcycle', \
             'water_natural', 'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', \
-            'highway_residential', 'highway_cycleway', 'highway_pedestrian']
+            'highway_cycleway', 'highway_pedestrian']
 not_binary_columns = ['highway', 'building']
 
 

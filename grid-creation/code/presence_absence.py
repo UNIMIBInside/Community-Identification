@@ -41,6 +41,12 @@ for field in not_binary_columns:
     first_third_quantile = train_dataframe[field].quantile(1/3)
     second_third_quantile = train_dataframe[field].quantile(2/3)
     third_third_quantile = train_dataframe[field].quantile(3/3)
+    print(first_third_quantile, second_third_quantile, third_third_quantile)
+
+    #if field == 'highway':
+    #    first_third_quantile, second_third_quantile, third_third_quantile = 1, 1, 1
+    #elif field == 'building':
+    #    first_third_quantile, second_third_quantile, third_third_quantile = 1, 1, 1
 
     train_dataframe[f'{field}_less'] = train_dataframe.apply(lambda x: \
         utils.binarization_quantile(x[field], -1, first_third_quantile), axis=1)

@@ -3,7 +3,8 @@ import pandas as pd
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from keras.applications.resnet50 import preprocess_input
 
-
+# 'parking_motorcycle_no', 'parking_motorcycle_yes', 'parking_bicycle_no', 'parking_bicycle_yes', 'highway_residential_no', 'highway_residential_yes',
+# 'parking_bicycle', 'parking_motorcycle', 'highway_residential',
 def generate_data(datagenerator, metadata_dataframe, image_path, columns, \
                                             batch_size, target_size_1, target_size_2, shuffle=True):
     data_generator = datagenerator.flow_from_dataframe(
@@ -43,10 +44,10 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
         #b = tf.convert_to_tensor(b)
         a = np.array(a, dtype=np.uint8)
         b = np.array(b, dtype=np.uint8)
-        
+        'parking_motorcycle_no', 'parking_motorcycle_yes',
         x.extend(a)
         y.extend(b)
-    
+
     del data_generator
     #data_x = tf.convert_to_tensor(x)
     #data_y = tf.convert_to_tensor(y)
@@ -58,14 +59,14 @@ def generate_data_multitasking(datagenerator, metadata_dataframe, image_path, co
 
 
 # Image Creation
-def creation_input_model(folder_path, multitask, binarization, batch_size, target_size_1, target_size_2):
+def creation_input_model(folder_path, multi'parking_motorcycle_no', 'parking_motorcycle_yes',task, binarization, batch_size, target_size_1, target_size_2):
 
     datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)
 
     if not binarization:
         columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 'bus_stop', \
-            'university', 'parking_car', 'parking_bicycle', 'parking_motorcycle', 'water_natural', \
-            'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', 'highway_residential', \
+            'university', 'parking_car', 'water_natural', \
+            'water_artificial', 'park', 'grassland', 'farmland', 'aerodrome', \
             'highway_cycleway', 'highway_pedestrian', 'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
         n_col = 1
@@ -74,11 +75,11 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         columns = ['peak_no', 'peak_yes', 'playground_no', 'playground_yes', 'train_station_no', \
             'train_station_yes', 'metro_station_no', 'metro_station_yes', 'tram_stop_no', \
             'tram_stop_yes', 'bus_stop_no', 'bus_stop_yes', 'university_no', 'university_yes', \
-            'parking_car_no', 'parking_car_yes', 'parking_bicycle_no', 'parking_bicycle_yes', \
-            'parking_motorcycle_no', 'parking_motorcycle_yes', 'water_natural_no', 'water_natural_yes', \
+            'parking_car_no', 'parking_car_yes', \
+            'water_natural_no', 'water_natural_yes', \
             'water_artificial_no', 'water_artificial_yes', 'park_no', 'park_yes', 'grassland_no', \
             'grassland_yes', 'farmland_no', 'farmland_yes', 'aerodrome_no', 'aerodrome_yes', \
-            'highway_residential_no', 'highway_residential_yes', 'highway_cycleway_no', \
+            'highway_cycleway_no', \
             'highway_cycleway_yes', 'highway_pedestrian_no', 'highway_pedestrian_yes', \
             'highway_less', 'highway_some', 'highway_more', \
             'building_less', 'building_some', 'building_more']
@@ -114,7 +115,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
 
     validation_metadata_dataframe = pd.read_csv(folder_path + '/grid-creation/data/milano_merged/marker_metadata_binarized.csv')
     validation_image_path = folder_path + '/grid-creation/data/milano_merged/map_tiles/'
-    
+
     if not multitask:
         validation_data = generate_data(datagenerator, validation_metadata_dataframe, validation_image_path, \
                                                     columns, batch_size, target_size_1, target_size_2, shuffle=False)
@@ -130,7 +131,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         validation_targets.append([validation_y[i][offset+1*3:offset+(1+1)*3] for i in range(validation_y.shape[0])])
         validation_targets = [np.array(e) for e in validation_targets]
         #validation_targets = [tf.convert_to_tensor(e) for e in validation_targets]
-    
+
         validation_data = (validation_x, validation_targets)
 
     return train_data, validation_data

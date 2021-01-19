@@ -53,7 +53,7 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch = 1  # number of epoch at training stage
+    nb_epoch = 50  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224

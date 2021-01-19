@@ -87,7 +87,7 @@ if __name__ == '__main__':
     if not load_input:
         train_data, validation_data = creation_input_model(folder_path, multitask, binarization, \
                                                         batch_size, target_size_1, target_size_2)
-         if isinstance(train_data, tuple):
+        if isinstance(train_data, tuple):
             train_x, train_targets = train_data
             validation_x, validation_targets = validation_data
         #    with open(os.path.join('data', "train_x.pickle"),'wb') as f: pickle.dump(train_x, f)

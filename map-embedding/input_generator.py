@@ -62,6 +62,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
 
     datagenerator=ImageDataGenerator(preprocessing_function=preprocess_input)
 
+    classes = 18
     if not binarization:
         columns = ['peak', 'playground', 'train_station', 'metro_station', 'tram_stop', 'bus_stop', \
             'university', 'parking_car', 'water_natural', \
@@ -98,7 +99,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         print(train_x.shape)
         print(train_y.shape)
 
-        train_targets = [[train_y[i][c*n_col:(c+1)*n_col] for i in range(train_y.shape[0])] for c in range(19)]
+        train_targets = [[train_y[i][c*n_col:(c+1)*n_col] for i in range(train_y.shape[0])] for c in range(classes-2)]
         train_targets.append([train_y[i][offset+0*3:offset+(0+1)*3] for i in range(train_y.shape[0])])
         train_targets.append([train_y[i][offset+1*3:offset+(1+1)*3] for i in range(train_y.shape[0])])
         train_targets = [np.array(e) for e in train_targets]
@@ -125,7 +126,7 @@ def creation_input_model(folder_path, multitask, binarization, batch_size, targe
         print(validation_x.shape)
         print(validation_y.shape)
 
-        validation_targets = [[validation_y[i][c*n_col:(c+1)*n_col] for i in range(validation_y.shape[0])] for c in range(19)]
+        validation_targets = [[validation_y[i][c*n_col:(c+1)*n_col] for i in range(validation_y.shape[0])] for c in range(classes-2)]
         validation_targets.append([validation_y[i][offset+0*3:offset+(0+1)*3] for i in range(validation_y.shape[0])])
         validation_targets.append([validation_y[i][offset+1*3:offset+(1+1)*3] for i in range(validation_y.shape[0])])
         validation_targets = [np.array(e) for e in validation_targets]

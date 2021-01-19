@@ -53,7 +53,7 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
 
     folder_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-    nb_epoch = 50  # number of epoch at training stage
+    nb_epoch = 1  # number of epoch at training stage
     batch_size = 64 # number of batch at training stage
     vector_shape = 128 # dimension of the embedding vector
     target_size_1 = 224
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     else:
         build = Map_Embedding2(weights=True, include_top=False, input_shape= (target_size_1, target_size_2, 3), binarization=binarization)
 
-    build.summary()
+    #build.summary()
     #plot_model(build, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
     # compile model

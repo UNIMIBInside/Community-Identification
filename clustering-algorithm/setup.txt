@@ -1,0 +1,4 @@
+Per eseguire lo script è necessario avere geckodriver, per il salvataggio delle mappe generate da folium.
+
+* scaricare da https://github.com/mozilla/geckodriver/releases la versione per che serve per il sistema
+* utilizzando un ambiente virtuale serve copiare il file eseguibile scaricato dentro la cartella venv/bin

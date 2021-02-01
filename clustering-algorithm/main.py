@@ -91,8 +91,8 @@ if day:
         exit(1)
 
 
-if os.path.isdir(folder_path + '/results') is False:
-    os.mkdir(folder_path + '/results')
+if os.path.isdir(folder_path + '/clustering-algorithm' + '/results') is False:
+    os.mkdir(folder_path + '/clustering-algorithm' + '/results')
 
 # Caricamento dataset
 print('Load dataset...')

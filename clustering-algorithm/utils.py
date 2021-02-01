@@ -73,7 +73,7 @@ def label_valid_transition(row, self_loop, map_marker_to_position):
                 actual_marker_pos = map_marker_to_position[row.placename]
                 next_marker_pos = map_marker_to_position[row.succ_placename]
                 return f'{actual_marker_pos}-{next_marker_pos}'
-    
+
     return None
 
 def transition_probabilities(timeslot_dataframe, self_loop, n_marker, day, \
@@ -111,7 +111,7 @@ def transition_probabilities(timeslot_dataframe, self_loop, n_marker, day, \
     all_next_transition = [marker_next_transition/sum(marker_next_transition) \
                             for marker_next_transition in all_next_transition]
     all_next_transition = np.nan_to_num(all_next_transition)
-    
+
     return all_next_transition
 
 
@@ -141,7 +141,7 @@ def old_transition_probabilities_with_selfloop(timeslot_dataframe, n_marker, day
                     actual_marker_pos = map_marker_to_position[actual_marker_label]
                     next_marker_pos = map_marker_to_position[next_marker_label]
                     all_next_transition[actual_marker_pos][next_marker_pos] += 1
-                
+
         except Exception as e:
             pass
 
@@ -155,18 +155,18 @@ def old_transition_probabilities_with_selfloop(timeslot_dataframe, n_marker, day
     all_next_transition = [marker_next_transition/sum(marker_next_transition) \
                             for marker_next_transition in all_next_transition]
     all_next_transition = np.nan_to_num(all_next_transition)
-    
+
     return all_next_transition
 
 def old_transition_probabilities_without_selfloop(timeslot_dataframe, n_marker, day, \
     time_range_start, time_range_end, map_marker_to_position, numerosity_threshold=0.02):
-    
+
     if day or (not day and isinstance(day, int)):
         timeslot_dataframe = timeslot_dataframe.loc[timeslot_dataframe.created_at.map(lambda x: x.weekday()) == day]
     if time_range_start:
         timeslot_dataframe = timeslot_dataframe.loc[timeslot_dataframe.created_at.map(lambda x: x.hour) >= time_range_start]
         timeslot_dataframe = timeslot_dataframe.loc[timeslot_dataframe.created_at.map(lambda x: x.hour) <= time_range_end]
-    
+
     all_next_transition = np.zeros((n_marker, n_marker))
 
     for i in range(timeslot_dataframe.shape[0]):
@@ -199,7 +199,7 @@ def old_transition_probabilities_without_selfloop(timeslot_dataframe, n_marker, 
     all_next_transition = [marker_next_transition/sum(marker_next_transition) \
                             for marker_next_transition in all_next_transition]
     all_next_transition = np.nan_to_num(all_next_transition)
-  
+
     return all_next_transition
 
 
@@ -210,7 +210,7 @@ def metrics_valid(metrics='modularity', alpha=1, beta=1, gamma=1):
         return False
     if metrics == 'map_embedding' and gamma == 0:
         return False
-    
+
     return True
 
 def choose_metrics_gain(metrics='modularity', modularity=False, distance=False, map_embedding=False):
@@ -222,7 +222,7 @@ def choose_metrics_gain(metrics='modularity', modularity=False, distance=False, 
         alpha, beta, gamma = 1, 1, 5
     else:
         alpha, beta, gamma = 1, 1, 1
-    
+
     if modularity or distance or map_embedding:
         alpha = 0 if not modularity else alpha
         beta = 0 if not distance else beta
@@ -291,7 +291,7 @@ def compute_gain(x, y, removed_cluster, C, weight_edges, degree_vertices, E, \
 
     if x == y or x in removed_cluster or y in removed_cluster:
         return -999
-    
+
     cX_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == x]
     cY_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == y]
     gain_modularity_weekday = compute_gain_modularity(cX_vertices, cY_vertices, 0, \
@@ -310,7 +310,7 @@ def compute_gain(x, y, removed_cluster, C, weight_edges, degree_vertices, E, \
                                                             similarity_ME_matrix, E)
     gain_total = alpha * gain_modularity + beta * gain_distance + gamma * gain_map_embedding
     return gain_total
-    
+
 def new_hierarchical_aggregation(C, weight_edges, degree_vertices, K, E, \
         alpha, beta, gamma, distance_matrix, similarity_ME_matrix, timeslot):
 
@@ -319,14 +319,14 @@ def new_hierarchical_aggregation(C, weight_edges, degree_vertices, K, E, \
 
     while True:
         iteration += 1
-  
+
         x_max, y_max = -1, -1
         max_gain_total = -999
 
         gain_list = [compute_gain(x, y, removed_cluster, C, weight_edges, degree_vertices, E, \
                             alpha, beta, gamma, distance_matrix, similarity_ME_matrix, timeslot) \
                             for x in range(K) for y in range(x+1, K)]
-        
+
         max_gain_total = np.array(gain_list).max()
         index_max = np.array(gain_list).argmax()
         x_max = int(index_max/K)
@@ -353,7 +353,7 @@ def hierarchical_aggregation(C, weight_edges, degree_vertices, K, E, \
 
     while True:
         iteration += 1
-  
+
         x_max, y_max = -1, -1
         max_gain_total = -999
 
@@ -361,7 +361,7 @@ def hierarchical_aggregation(C, weight_edges, degree_vertices, K, E, \
             for y in range(x+1, K):
                 if x == y or x in removed_cluster or y in removed_cluster:
                     continue
-                
+
                 cX_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == x]
                 cY_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == y]
                 gain_modularity_weekday = compute_gain_modularity(cX_vertices, cY_vertices, 0, \
@@ -384,7 +384,7 @@ def hierarchical_aggregation(C, weight_edges, degree_vertices, K, E, \
                     max_gain_total = gain_total
                     x_max = x
                     y_max = y
-      
+
         if x_max == -1 or y_max == -1 or max_gain_total <= 0:
             #print(x_max, y_max, max_gain_total)
             break
@@ -408,13 +408,13 @@ def reallocation_cluster_under_threshold(C, weight_edges, degree_vertices, K, E,
         continue_loop = False
         iteration += 1
         temp_C = temp_C.copy()
-        possible_shift = [] 
+        possible_shift = []
         #print(f'ITERATION {iteration}')
 
         for cluster_index, n_marker in Counter(temp_C).most_common()[::-1]:
             if n_marker >= min_element_threshold:
                 break
-            
+
             cluster_vertices = [vertex for vertex, cluster in enumerate(temp_C) if cluster == cluster_index]
 
             for vertex in cluster_vertices:
@@ -441,7 +441,7 @@ def reallocation_cluster_under_threshold(C, weight_edges, degree_vertices, K, E,
                             gain_modularity = gain_modularity_weekend
                         else:
                             gain_modularity = gain_modularity_weekday + gain_modularity_weekend
-                            
+
                         gain_distance = compute_gain_distance([vertex], cY_vertices, distance_matrix, E)
                         gain_map_embedding = compute_gain_map_embedding([vertex], cY_vertices, similarity_ME_matrix, E)
                         gain_total = alpha * gain_modularity + beta * gain_distance + gamma * gain_map_embedding
@@ -449,7 +449,7 @@ def reallocation_cluster_under_threshold(C, weight_edges, degree_vertices, K, E,
                         if gain_total > max_gain_total:
                             max_gain_total = gain_total
                             cluster_max = cluster_neighbor
-                    
+
                     possible_shift.append((vertex, cluster_max, max_gain_total))
 
         possible_shift = sorted(possible_shift, key=lambda x: x[2], reverse=True)
@@ -463,7 +463,7 @@ def reallocation_cluster_under_threshold(C, weight_edges, degree_vertices, K, E,
         #print()
         if community_iteration.count(temp_C) <= 1:
             continue_loop = True
-    
+
     #print(community_iteration[-1])
     return community_iteration[-1]
 
@@ -475,7 +475,7 @@ def reduction_cluster_number(cluster_threshold, C, weight_edges, degree_vertices
 
     while iteration < K - cluster_threshold:
         iteration += 1
-    
+
         x_max, y_max = -1, -1
         max_gain_total = -999
 
@@ -483,7 +483,7 @@ def reduction_cluster_number(cluster_threshold, C, weight_edges, degree_vertices
             for y in range(K):
                 if x == y or x in removed_cluster or y in removed_cluster:
                     continue
-                
+
                 cX_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == x]
                 cY_vertices = [vertex for vertex, cluster in enumerate(C) if cluster == y]
                 gain_modularity_weekday = compute_gain_modularity(cX_vertices, cY_vertices, 0, \
@@ -506,7 +506,7 @@ def reduction_cluster_number(cluster_threshold, C, weight_edges, degree_vertices
                     max_gain_total = gain_total
                     x_max = x
                     y_max = y
-            
+
         C = [x_max if e == y_max else e for e in C]
         removed_cluster.append(y_max)
 
@@ -526,11 +526,11 @@ def reallocation_isolated_node(C, weight_edges, degree_vertices, K, E, alpha, be
         continue_loop = False
         iteration += 1
         temp_C = temp_C.copy()
-        possible_shift = [] 
+        possible_shift = []
         #print(f'ITERATION {iteration}')
 
         for cluster_index, _ in Counter(temp_C).most_common():
-            
+
             cluster_vertices = [vertex for vertex, cluster in enumerate(temp_C) if cluster == cluster_index]
 
             for vertex in cluster_vertices:
@@ -568,7 +568,7 @@ def reallocation_isolated_node(C, weight_edges, degree_vertices, K, E, alpha, be
                         if gain_total > max_gain_total:
                             max_gain_total = gain_total
                             cluster_max = cluster_neighbor
-                    
+
                     possible_shift.append((vertex, cluster_max, max_gain_total))
 
         possible_shift = sorted(possible_shift, key=lambda x: x[2], reverse=True)
@@ -582,7 +582,7 @@ def reallocation_isolated_node(C, weight_edges, degree_vertices, K, E, alpha, be
         #print()
         if community_iteration.count(temp_C) <= 1:
             continue_loop = True
-    
+
     #print(community_iteration[-1])
     return community_iteration[-1]
 
@@ -621,10 +621,11 @@ def save_cluster_solution(save_file_path, points_dataframe, cluster_field, K, \
         folium.Polygon(rectangle_points, fill=True, fill_opacity=0.6, \
                             color=cluster_colors[int(points_dataframe.iloc[i][cluster_field])],
                             radius=3).add_to(m)
-    
-    img_data = m._to_png(5)
-    img = Image.open(io.BytesIO(img_data))
-    img.save(save_file_path)
+
+    #img_data = m._to_png(5)
+    #img = Image.open(io.BytesIO(img_data))
+    #img.save(save_file_path)
+    m.save(save_file_path)
 
 def save_community_metrics(step_name, points_dataframe, C, weight_edges, degree_vertices, \
                                                 K, E, distance_matrix, similarity_ME_matrix):
@@ -655,4 +656,3 @@ def save_community_metrics(step_name, points_dataframe, C, weight_edges, degree_
                     f'cluster_{step_name}_map_embedding'] = communities_map_embedding[k]
 
     return points_dataframe
-

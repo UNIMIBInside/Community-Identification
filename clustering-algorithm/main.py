@@ -197,7 +197,7 @@ K = len(set(C))
 
 ## Salvataggio immagine e calcolo valori metriche
 save_image_file_path = folder_path + \
-    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step1_HA.png'
+    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step1_HA.html'
 utils.save_cluster_solution(save_image_file_path, points_dataframe, 'cluster_HA', K)
 
 point_dataframe = utils.save_community_metrics('HA', points_dataframe, C, \
@@ -222,7 +222,7 @@ K = len(set(C))
 
 ## Salvataggio immagine e calcolo valori metriche
 save_image_file_path = folder_path + \
-    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step2_CT.png'
+    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step2_CT.html'
 utils.save_cluster_solution(save_image_file_path, points_dataframe, 'cluster_CT', K)
 
 point_dataframe = utils.save_community_metrics('CT', points_dataframe, C, \
@@ -248,7 +248,7 @@ K = len(set(C))
 
 ## Salvataggio immagine e calcolo valori metriche
 save_image_file_path = folder_path + \
-    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step3_RC.png'
+    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step3_RC.html'
 utils.save_cluster_solution(save_image_file_path, points_dataframe, 'cluster_RC', K)
 
 point_dataframe = utils.save_community_metrics('RC', points_dataframe, C, \
@@ -275,7 +275,7 @@ K = len(set(C))
 
 ## Salvataggio immagine e calcolo valori metriche
 save_image_file_path = folder_path + \
-    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step4_RI.png'
+    f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}_step4_RI.html'
 utils.save_cluster_solution(save_image_file_path, points_dataframe, 'cluster_RI', K)
 
 point_dataframe = utils.save_community_metrics('RI', points_dataframe, C, \
@@ -287,4 +287,3 @@ point_dataframe = utils.save_community_metrics('RI', points_dataframe, C, \
 save_dataframe_file_path = folder_path + \
     f'/clustering-algorithm/results/clustering_{self_loop_save}_{metric_predominant}_{timeslot}.csv'
 points_dataframe.to_csv(save_dataframe_file_path, index=False, float_format='%.8f')
-

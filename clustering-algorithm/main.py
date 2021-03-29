@@ -49,7 +49,7 @@ time_range_end = args.time_range_end
 day = args.day
 load_matrix = args.load_matrix
 
-if metric_predominant not in ['modularity', 'distance', 'map_embedding']:
+if metric_predominant not in ['modularity', 'distance', 'map_embedding', 'equal']:
     print('Error, possible value for --metrics are: modularity, distance, map_embedding')
     exit(1)
 if timeslot not in ['global', 'weekday', 'weekend']:

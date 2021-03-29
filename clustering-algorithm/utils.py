@@ -215,7 +215,7 @@ def metrics_valid(metrics='modularity', alpha=1, beta=1, gamma=1):
 
 def choose_metrics_gain(metrics='modularity', modularity=False, distance=False, map_embedding=False):
     if metrics == 'modularity':
-        alpha, beta, gamma = 1, 1, 1
+        alpha, beta, gamma = 5, 1, 1
     elif metrics == 'distance':
         alpha, beta, gamma = 1, 10, 1
     elif metrics == 'map_embedding':
